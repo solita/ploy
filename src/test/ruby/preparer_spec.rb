@@ -37,4 +37,18 @@ describe Preparer do
     File.join(@sandbox, 'server1/file-from-template.txt').should be_a_file
     File.join(@sandbox, 'server1/subdir/file-from-template-subdir.txt').should be_a_file
   end
+
+  it "writes properties files to the server's output directory" do
+    config = DeployConfig.new
+    config.server 'server1' do |server|
+      server.use_properties 'lib/config.properties', {'some.key' => 'some value'}
+    end
+
+    preparer = Preparer.new(config, @sandbox)
+    preparer.build_all!
+
+    properties_file = File.join(@sandbox, 'server1/lib/config.properties')
+    properties_file.should be_a_file
+    IO.read(properties_file).should include('some.key=some value')
+  end
 end

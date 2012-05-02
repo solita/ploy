@@ -16,9 +16,32 @@ class Preparer
   private
 
   def build_server!(output_dir, server)
-    template = server.template
-    if template
-      FileUtils.cp_r(File.join(template, '.'), output_dir)
+    template_dir = server.template
+    if template_dir
+      copy_template(template_dir, output_dir)
     end
+
+    server.properties.each { |relative_path, properties|
+      output_file = File.join(output_dir, relative_path)
+      write_properties_file(properties, output_file)
+    }
+  end
+
+  def copy_template(template_dir, output_dir)
+    FileUtils.cp_r(File.join(template_dir, '.'), output_dir)
+  end
+
+  def write_properties_file(properties, output_file)
+    create_parent_dirs(output_file)
+
+    File.open(output_file, 'w') { |f|
+      properties.each { |key, value|
+        f.puts "#{key}=#{value}"
+      }
+    }
+  end
+
+  def create_parent_dirs(file)
+    FileUtils.mkdir_p(File.dirname(file))
   end
 end

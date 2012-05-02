@@ -29,13 +29,19 @@ end
 
 class ServerConfig
 
-  attr_accessor :template
+  attr_accessor :template,
+                :properties
+
+  def initialize()
+    @properties = {}
+  end
 
   def use_template(source_path)
     @template = source_path
   end
 
   def use_properties(target_path, properties)
+    @properties[target_path] = properties
   end
 
   def install_war(war, manuscripts = [])
