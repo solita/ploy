@@ -28,6 +28,12 @@ class Preparer
   end
 
   def copy_template(template_dir, output_dir)
+    parent_link = File.join(template_dir, '.parent')
+    if File.exist?(parent_link)
+      parent_dir = File.join(template_dir, IO.read(parent_link).strip)
+      copy_template(parent_dir, output_dir)
+    end
+
     FileUtils.cp_r(File.join(template_dir, '.'), output_dir)
   end
 

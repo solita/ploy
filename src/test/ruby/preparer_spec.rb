@@ -38,6 +38,31 @@ describe Preparer do
     File.join(@sandbox, 'server1/subdir/file-from-template-subdir.txt').should be_a_file
   end
 
+  it "copies parent template's files in addition to the child template's files" do
+    config = DeployConfig.new
+    config.server 'server1' do |server|
+      server.use_template 'testdata/child-template'
+    end
+
+    preparer = Preparer.new(config, @sandbox)
+    preparer.build_all!
+
+    File.join(@sandbox, 'server1/child-file.txt').should be_a_file
+    File.join(@sandbox, 'server1/parent-file.txt').should be_a_file
+  end
+
+  it "child template's files override parent template's files" do
+    config = DeployConfig.new
+    config.server 'server1' do |server|
+      server.use_template 'testdata/child-template'
+    end
+
+    preparer = Preparer.new(config, @sandbox)
+    preparer.build_all!
+
+    IO.read(File.join(@sandbox, 'server1/overridden.txt')).strip.should == "child"
+  end
+
   it "writes properties files to the server's output directory" do
     config = DeployConfig.new
     config.server 'server1' do |server|
