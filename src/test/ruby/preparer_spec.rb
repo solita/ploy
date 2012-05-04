@@ -25,6 +25,10 @@ describe Preparer do
     File.join(@sandbox, 'server2').should be_a_directory
   end
 
+  it "empties the output directory if it already exists" do
+    pending
+  end
+
   it "copies template files recursively to the server's output directory" do
     config = DeployConfig.new
     config.server 'server1' do |server|
@@ -61,6 +65,30 @@ describe Preparer do
     preparer.build_all!
 
     IO.read(File.join(@sandbox, 'server1/overridden.txt')).strip.should == "child"
+  end
+
+  it "doesn't copy the hidden parent reference file" do
+    config = DeployConfig.new
+    config.server 'server1' do |server|
+      server.use_template 'testdata/child-template'
+    end
+
+    preparer = Preparer.new(config, @sandbox)
+    preparer.build_all!
+
+    File.join(@sandbox, 'server1', DeployConfig::PARENT_REF).should_not be_a_file
+  end
+
+  it "copies other hidden files" do
+    config = DeployConfig.new
+    config.server 'server1' do |server|
+      server.use_template 'testdata/child-template'
+    end
+
+    preparer = Preparer.new(config, @sandbox)
+    preparer.build_all!
+
+    File.join(@sandbox, 'server1/.some-other-hidden-file').should be_a_file
   end
 
   it "writes properties files to the server's output directory" do

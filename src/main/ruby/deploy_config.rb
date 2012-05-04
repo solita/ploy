@@ -1,5 +1,7 @@
 class DeployConfig
 
+  PARENT_REF = '.parent'
+
   attr_writer :scheduler_db_url,
               :scheduler_db_user_username,
               :scheduler_db_user_password,

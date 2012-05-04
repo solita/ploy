@@ -1,3 +1,5 @@
+require 'pathname'
+
 class Preparer
 
   def initialize(config, output_dir)
@@ -28,13 +30,31 @@ class Preparer
   end
 
   def copy_template(template_dir, output_dir)
-    parent_link = File.join(template_dir, '.parent')
-    if File.exist?(parent_link)
-      parent_dir = File.join(template_dir, IO.read(parent_link).strip)
+    parent_ref = File.join(template_dir, DeployConfig::PARENT_REF)
+    if File.exist?(parent_ref)
+      parent_dir = File.join(template_dir, IO.read(parent_ref).strip)
       copy_template(parent_dir, output_dir)
     end
 
-    FileUtils.cp_r(File.join(template_dir, '.'), output_dir)
+    Dir.glob("#{template_dir}/**/*", File::FNM_DOTMATCH).
+            reject { |file| special_file?(file) }.
+            each { |file| copy_template_file(template_dir, file, output_dir) }
+  end
+
+  def special_file?(file)
+    basename = File.basename(file)
+    basename == '.' || basename == '..' || basename == DeployConfig::PARENT_REF
+  end
+
+  def copy_template_file(source_basedir, source_file, target_basedir)
+    relative_path = Pathname.new(source_file).relative_path_from(Pathname.new(source_basedir))
+    target_file = File.join(target_basedir, relative_path)
+    if File.directory?(source_file)
+      FileUtils.mkdir(target_file)
+    else
+      # TODO: do template processing here (i.e. inserting values for property placeholders)
+      FileUtils.cp(source_file, target_file)
+    end
   end
 
   def write_properties_file(properties, output_file)
