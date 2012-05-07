@@ -1,6 +1,5 @@
-require_relative 'test_helpers'
-require_relative '../../main/ruby/deploy_config'
 require_relative '../../main/ruby/preparer'
+require_relative 'test_helpers'
 require 'tmpdir'
 
 describe Preparer do
@@ -149,7 +148,7 @@ describe Preparer do
   end
 
   it "copies WARs from the local Maven repository to the marked WAR directory" do
-    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WAR_LOCATION}"
+    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WEBAPPS_TAG}"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/basic-webapp"
@@ -161,18 +160,18 @@ describe Preparer do
   end
 
   it "doesn't copy the WAR location marker" do
-    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WAR_LOCATION}"
+    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WEBAPPS_TAG}"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/basic-webapp"
     end
     prepare!
 
-    "#@target/server1/webapps/#{DeployConfig::WAR_LOCATION}".should_not be_a_file
+    "#@target/server1/webapps/#{DeployConfig::WEBAPPS_TAG}".should_not be_a_file
   end
 
   it "embeds manuscript bundles inside WAR files" do
-    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WAR_LOCATION}"
+    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WEBAPPS_TAG}"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/basic-webapp"

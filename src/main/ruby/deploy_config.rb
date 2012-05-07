@@ -7,7 +7,7 @@ end
 class DeployConfig
 
   PARENT_REF = '.parent'
-  WAR_LOCATION = '.war_location'
+  WEBAPPS_TAG = '.webapps'
 
   attr_reader :template_replacements,
               :servers

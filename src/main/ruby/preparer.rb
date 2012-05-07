@@ -1,5 +1,7 @@
+require 'fileutils'
 require 'pathname'
 require_relative 'template'
+require_relative 'maven'
 
 class Preparer
 
@@ -58,7 +60,7 @@ class Preparer
   end
 
   def special_file?(file)
-    special_files = ['.', '..', DeployConfig::PARENT_REF, DeployConfig::WAR_LOCATION]
+    special_files = ['.', '..', DeployConfig::PARENT_REF, DeployConfig::WEBAPPS_TAG]
     special_files.include?(File.basename(file))
   end
 
@@ -126,9 +128,9 @@ class Preparer
   end
 
   def webapps_dir(template_dir)
-    marker = Dir.glob("#{template_dir}/**/#{DeployConfig::WAR_LOCATION}").first
+    marker = Dir.glob("#{template_dir}/**/#{DeployConfig::WEBAPPS_TAG}").first
     unless marker
-      raise "Did not find #{DeployConfig::WAR_LOCATION} from #{template_dir}"
+      raise "Did not find #{DeployConfig::WEBAPPS_TAG} from #{template_dir}"
     end
     Pathname(File.dirname(marker)).relative_path_from(Pathname(template_dir))
   end

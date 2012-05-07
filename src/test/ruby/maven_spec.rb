@@ -1,5 +1,5 @@
-require_relative 'test_helpers'
 require_relative '../../main/ruby/maven'
+require_relative 'test_helpers'
 
 describe MavenArtifact do
 

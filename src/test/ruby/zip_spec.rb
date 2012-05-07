@@ -1,5 +1,5 @@
-require_relative 'test_helpers'
 require_relative '../../main/ruby/zip'
+require_relative 'test_helpers'
 require 'tmpdir'
 
 describe Zip do
