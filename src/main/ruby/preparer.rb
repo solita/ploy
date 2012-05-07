@@ -1,4 +1,5 @@
 require 'pathname'
+require_relative 'template'
 
 class Preparer
 
@@ -24,7 +25,7 @@ class Preparer
       copy_template(template_dir, output_dir)
     end
 
-    server.properties.each { |relative_path, properties|
+    server.properties_files.each { |relative_path, properties|
       output_file = File.join(output_dir, relative_path)
       write_properties_file(properties, output_file)
     }
@@ -53,9 +54,16 @@ class Preparer
     if File.directory?(source_file)
       FileUtils.mkdir(target_file)
     else
-      # TODO: do template processing here (i.e. inserting values for property placeholders)
-      FileUtils.cp(source_file, target_file)
+      content = interpolate_template_file(source_file)
+      File.open(target_file, 'wb') { |file|
+        file.write(content)
+      }
     end
+  end
+
+  def interpolate_template_file(template_file)
+    template = Template.new(IO.read(template_file))
+    template.interpolate(@config.template_replacements)
   end
 
   def write_properties_file(properties, output_file)

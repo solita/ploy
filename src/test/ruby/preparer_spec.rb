@@ -126,4 +126,16 @@ describe Preparer do
     properties_file.should be_a_file
     IO.read(properties_file).should include('some.key=some value')
   end
+
+  it "interpolates variables in template files" do
+    given_file "#@templates/example/answer.txt", 'answer = <%= answer %>'
+
+    @config[:answer] = 42
+    @config.server 'server1' do |server|
+      server.use_template "#@templates/example"
+    end
+    prepare!
+
+    IO.read("#@target/server1/answer.txt").should == 'answer = 42'
+  end
 end

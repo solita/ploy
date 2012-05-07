@@ -2,21 +2,16 @@ class DeployConfig
 
   PARENT_REF = '.parent'
 
-  attr_writer :scheduler_db_url,
-              :scheduler_db_user_username,
-              :scheduler_db_user_password,
-              :scheduler_db_admin_username,
-              :scheduler_db_admin_password,
-              :runner_db_url,
-              :runner_db_user_username,
-              :runner_db_user_password,
-              :runner_db_admin_username,
-              :runner_db_admin_password
-
-  attr_accessor :servers
+  attr_accessor :template_replacements,
+                :servers
 
   def initialize()
+    @template_replacements = {}
     @servers = {}
+  end
+
+  def []=(key, value)
+    @template_replacements[key] = value
   end
 
   def server(*hostnames)
@@ -32,10 +27,10 @@ end
 class ServerConfig
 
   attr_accessor :template,
-                :properties
+                :properties_files
 
   def initialize()
-    @properties = {}
+    @properties_files = {}
   end
 
   def use_template(source_path)
@@ -43,7 +38,7 @@ class ServerConfig
   end
 
   def use_properties(target_path, properties)
-    @properties[target_path] = properties
+    @properties_files[target_path] = properties
   end
 
   def install_war(war, manuscripts = [])
