@@ -18,20 +18,6 @@ describe Preparer do
     FileUtils.rm_rf(@sandbox)
   end
 
-  def given_file(path, content='')
-    given_dir File.dirname(path)
-    File.open(path, 'wb') { |file|
-      file.write(content)
-    }
-    path.should be_a_file
-    path
-  end
-
-  def given_dir(path)
-    FileUtils.mkdir_p(path)
-    path.should be_a_directory
-    path
-  end
 
   def prepare!
     preparer = Preparer.new(@config, @target)
