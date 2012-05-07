@@ -1,13 +1,17 @@
 class DeployConfig
 
   PARENT_REF = '.parent'
+  WAR_LOCATION = '.war_location'
 
-  attr_accessor :template_replacements,
-                :servers
+  attr_reader :template_replacements,
+              :servers
+
+  attr_accessor :maven_repository
 
   def initialize()
     @template_replacements = {}
     @servers = {}
+    @maven_repository = File.join(Dir.home, '.m2/repository')
   end
 
   def []=(key, value)
@@ -26,11 +30,13 @@ end
 
 class ServerConfig
 
-  attr_accessor :template,
-                :properties_files
+  attr_reader :template,
+              :properties_files,
+              :webapps
 
   def initialize()
     @properties_files = {}
+    @webapps = {}
   end
 
   def use_template(source_path)
@@ -41,6 +47,7 @@ class ServerConfig
     @properties_files[target_path] = properties
   end
 
-  def install_war(war, manuscripts = [])
+  def install_webapp(webapp, manuscripts = [])
+    @webapps[webapp] = manuscripts
   end
 end

@@ -9,7 +9,9 @@ describe Preparer do
     @sandbox = Dir.mktmpdir()
     @templates = given_dir "#@sandbox/templates"
     @target = given_dir "#@sandbox/target"
+
     @config = DeployConfig.new
+    @config.maven_repository = "testdata/maven-repository"
   end
 
   after(:each) do
@@ -21,11 +23,13 @@ describe Preparer do
     File.open(path, 'wb') { |file|
       file.write(content)
     }
+    path.should be_a_file
     path
   end
 
   def given_dir(path)
     FileUtils.mkdir_p(path)
+    path.should be_a_directory
     path
   end
 
@@ -33,6 +37,9 @@ describe Preparer do
     preparer = Preparer.new(@config, @target)
     preparer.build_all!
   end
+
+
+  # Template basics
 
   it "creates an output directory for each server" do
     @config.server 'server1', 'server2' do |server|
@@ -65,6 +72,9 @@ describe Preparer do
     "#@target/server1/file-from-template.txt".should be_a_file
     "#@target/server1/subdir/file-from-template-subdir.txt".should be_a_file
   end
+
+
+  # Template inheritance
 
   it "copies parent template's files in addition to the child template's files" do
     given_file "#@templates/parent/parent-file.txt"
@@ -105,7 +115,7 @@ describe Preparer do
     "#@target/server1/#{DeployConfig::PARENT_REF}".should_not be_a_file
   end
 
-  it "copies other hidden files" do
+  it "copies normal hidden files" do
     given_file "#@templates/example/.some-other-hidden-file"
 
     @config.server 'server1' do |server|
@@ -115,6 +125,9 @@ describe Preparer do
 
     "#@target/server1/.some-other-hidden-file".should be_a_file
   end
+
+
+  # Configuration files
 
   it "writes properties files to the server's output directory" do
     @config.server 'server1' do |server|
@@ -137,5 +150,37 @@ describe Preparer do
     prepare!
 
     IO.read("#@target/server1/answer.txt").should == 'answer = 42'
+  end
+
+
+  # Maven artifacts
+
+  it "by default, uses the default location of the local Maven repository" do
+    config = DeployConfig.new
+
+    config.maven_repository.should == "#{Dir.home}/.m2/repository"
+  end
+
+  it "copies WARs from the local Maven repository to the marked WAR directory" do
+    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WAR_LOCATION}"
+
+    @config.server 'server1' do |server|
+      server.use_template "#@templates/basic-webapp"
+      server.install_webapp 'com.example:sample:1.0:war'
+    end
+    prepare!
+
+    "#@target/server1/webapps/sample.war".should be_a_file
+  end
+
+  it "doesn't copy the WAR location marker" do
+    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WAR_LOCATION}"
+
+    @config.server 'server1' do |server|
+      server.use_template "#@templates/basic-webapp"
+    end
+    prepare!
+
+    "#@target/server1/webapps/#{DeployConfig::WAR_LOCATION}".should_not be_a_file
   end
 end

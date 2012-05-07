@@ -20,15 +20,19 @@ class Preparer
   private
 
   def build_server!(output_dir, server)
+    build_templates(output_dir, server)
+    build_properties_files(output_dir, server)
+    build_webapps(output_dir, server)
+  end
+
+
+  # Templates
+
+  def build_templates(output_dir, server)
     template_dir = server.template
     if template_dir
       copy_template(template_dir, output_dir)
     end
-
-    server.properties_files.each { |relative_path, properties|
-      output_file = File.join(output_dir, relative_path)
-      write_properties_file(properties, output_file)
-    }
   end
 
   def copy_template(template_dir, output_dir)
@@ -44,12 +48,12 @@ class Preparer
   end
 
   def special_file?(file)
-    basename = File.basename(file)
-    basename == '.' || basename == '..' || basename == DeployConfig::PARENT_REF
+    special_files = ['.', '..', DeployConfig::PARENT_REF, DeployConfig::WAR_LOCATION]
+    special_files.include?(File.basename(file))
   end
 
   def copy_template_file(source_basedir, source_file, target_basedir)
-    relative_path = Pathname.new(source_file).relative_path_from(Pathname.new(source_basedir))
+    relative_path = Pathname(source_file).relative_path_from(Pathname(source_basedir))
     target_file = File.join(target_basedir, relative_path)
     if File.directory?(source_file)
       FileUtils.mkdir(target_file)
@@ -66,6 +70,17 @@ class Preparer
     template.interpolate(@config.template_replacements)
   end
 
+
+  # Properties files
+
+  def build_properties_files(output_dir, server)
+    server.properties_files.each { |relative_path, properties|
+      output_file = File.join(output_dir, relative_path)
+      write_properties_file(properties, output_file)
+    }
+  end
+
+
   def write_properties_file(properties, output_file)
     create_parent_dirs(output_file)
 
@@ -74,6 +89,26 @@ class Preparer
         f.puts "#{key}=#{value}"
       }
     }
+  end
+
+
+  # Webapps
+
+  def build_webapps(output_dir, server)
+    server.webapps.each { |webapp, manuscripts|
+      webapp = MavenArtifact.new(webapp)
+      source_file = webapp.path(@config.maven_repository)
+      target_file = File.join(output_dir, webapps_dir(server.template), webapp.simple_name)
+      FileUtils.cp(source_file, target_file)
+    }
+  end
+
+  def webapps_dir(template_dir)
+    marker = Dir.glob("#{template_dir}/**/#{DeployConfig::WAR_LOCATION}").first
+    unless marker
+      raise "Did not find #{DeployConfig::WAR_LOCATION} from #{template_dir}"
+    end
+    Pathname(File.dirname(marker)).relative_path_from(Pathname(template_dir))
   end
 
   def create_parent_dirs(file)

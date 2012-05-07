@@ -1,6 +1,6 @@
 class MavenArtifact
 
-  attr_accessor :group_id, :artifact_id, :version, :packaging, :classifier
+  attr_reader :group_id, :artifact_id, :version, :packaging, :classifier
 
   def initialize(artifact)
     elements = artifact.split(':')
