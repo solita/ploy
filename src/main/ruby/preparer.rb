@@ -3,9 +3,12 @@ require_relative 'template'
 
 class Preparer
 
+  attr_writer :logging
+
   def initialize(config, output_dir)
     @config = config
     @output_dir = output_dir
+    @logging = true
   end
 
   def build_all!
@@ -25,6 +28,12 @@ class Preparer
     build_webapps(output_dir, server)
   end
 
+  def log_info(message)
+    if @logging
+      puts "[INFO] #{message}"
+    end
+  end
+
 
   # Templates
 
@@ -38,10 +47,11 @@ class Preparer
   def copy_template(template_dir, output_dir)
     parent_ref = File.join(template_dir, DeployConfig::PARENT_REF)
     if File.exist?(parent_ref)
-      parent_dir = File.join(template_dir, IO.read(parent_ref).strip)
+      parent_dir = File.absolute_path(IO.read(parent_ref).strip, template_dir)
       copy_template(parent_dir, output_dir)
     end
 
+    log_info "Copying template #{template_dir} to #{output_dir}"
     Dir.glob("#{template_dir}/**/*", File::FNM_DOTMATCH).
             reject { |file| special_file?(file) }.
             each { |file| copy_template_file(template_dir, file, output_dir) }
@@ -91,6 +101,10 @@ class Preparer
     }
   end
 
+  def create_parent_dirs(file)
+    FileUtils.mkdir_p(File.dirname(file))
+  end
+
 
   # Webapps
 
@@ -99,7 +113,15 @@ class Preparer
       webapp = MavenArtifact.new(webapp)
       source_file = webapp.path(@config.maven_repository)
       target_file = File.join(output_dir, webapps_dir(server.template), webapp.simple_name)
+
+      log_info "Copying #{source_file} to #{target_file}"
       FileUtils.cp(source_file, target_file)
+
+      manuscripts.each { |manuscript|
+        manuscript = MavenArtifact.new(manuscript)
+        bundle_file = manuscript.path(@config.maven_repository)
+        embed_into_zip(bundle_file, target_file, 'WEB-INF/lib')
+      }
     }
   end
 
@@ -111,7 +133,19 @@ class Preparer
     Pathname(File.dirname(marker)).relative_path_from(Pathname(template_dir))
   end
 
-  def create_parent_dirs(file)
-    FileUtils.mkdir_p(File.dirname(file))
+  def embed_into_zip(source_file, target_file, subdir)
+    log_info "Embedding #{source_file} into #{target_file}"
+    Dir.mktmpdir { |unpack_dir|
+      Zip.new(source_file).unzip(unpack_dir)
+
+      list_files(unpack_dir).each { |file| log_info "    + #{file}" }
+      Zip.new(target_file).add(unpack_dir, subdir)
+    }
+  end
+
+  def list_files(dir)
+    Dir.glob(File.join(dir, "**")).map { |file|
+      Pathname.new(file).relative_path_from(Pathname.new(dir))
+    }.sort
   end
 end

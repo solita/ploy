@@ -35,6 +35,7 @@ describe Preparer do
 
   def prepare!
     preparer = Preparer.new(@config, @target)
+    preparer.logging = false
     preparer.build_all!
   end
 
@@ -182,5 +183,17 @@ describe Preparer do
     prepare!
 
     "#@target/server1/webapps/#{DeployConfig::WAR_LOCATION}".should_not be_a_file
+  end
+
+  it "embeds manuscript bundles inside WAR files" do
+    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WAR_LOCATION}"
+
+    @config.server 'server1' do |server|
+      server.use_template "#@templates/basic-webapp"
+      server.install_webapp 'com.example:sample:1.0:war', ['com.example:manuscript:1.0:zip:bundle']
+    end
+    prepare!
+
+    Zip.new("#@target/server1/webapps/sample.war").list.should include('WEB-INF/lib/manuscript-library.jar')
   end
 end
