@@ -49,7 +49,7 @@ class ServerConfig
 
   def use_template(source_path)
     assert_type(:source_path, source_path, String)
-    @template = source_path
+    @template = File.absolute_path(source_path)
   end
 
   def use_properties(target_path, properties)

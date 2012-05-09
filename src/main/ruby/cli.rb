@@ -13,7 +13,9 @@ class CLI
       output_dir = @args[2]
 
       config = DeployConfig.new
-      eval(IO.read(config_file), get_binding_for_config_file(config), config_file)
+      Dir.chdir(File.dirname(config_file)) do
+        eval(IO.read(config_file), get_binding_for_config_file(config), config_file)
+      end
 
       preparer = Preparer.new(config, output_dir)
       preparer.build_all!

@@ -47,6 +47,8 @@ class Preparer
   end
 
   def copy_template(template_dir, output_dir)
+    raise "Template directory does not exist: #{template_dir}" unless Dir.exist?(template_dir)
+
     parent_dir = find_parent_template(template_dir)
     if parent_dir
       copy_template(parent_dir, output_dir)
