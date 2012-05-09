@@ -1,7 +1,7 @@
 require_relative 'deploy_config'
 require_relative 'preparer'
 
-class Main
+class CLI
 
   def initialize(args)
     @args = args

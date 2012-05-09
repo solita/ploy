@@ -1,7 +1,7 @@
-require_relative '../../main/ruby/main'
+require_relative '../../main/ruby/cli'
 require_relative 'test_helpers'
 
-describe Main do
+describe CLI do
 
   before(:each) do
     @sandbox = Dir.mktmpdir()
@@ -12,7 +12,7 @@ describe Main do
   end
 
   def run(*args)
-    Main.new(args).run!
+    CLI.new(args).run!
   end
 
   it "can prepare a deployment configuration" do

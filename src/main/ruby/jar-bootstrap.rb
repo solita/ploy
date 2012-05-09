@@ -1,3 +1,3 @@
-require 'main'
+require 'cli'
 
-Main.new(ARGV).run!
+CLI.new(ARGV).run!
