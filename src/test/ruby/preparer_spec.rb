@@ -7,7 +7,7 @@ describe Preparer do
   before(:each) do
     @sandbox = Dir.mktmpdir()
     @templates = given_dir "#@sandbox/templates"
-    @target = given_dir "#@sandbox/target"
+    @output = given_dir "#@sandbox/target"
 
     @config = DeployConfig.new
     @config.maven_repository = "testdata/maven-repository"
@@ -19,7 +19,7 @@ describe Preparer do
 
 
   def prepare!
-    preparer = Preparer.new(@config, @target)
+    preparer = Preparer.new(@config, @output)
     preparer.logging = false
     preparer.build_all!
   end
@@ -32,12 +32,12 @@ describe Preparer do
     end
     prepare!
 
-    "#@target/server1".should be_a_directory
-    "#@target/server2".should be_a_directory
+    "#@output/server1".should be_a_directory
+    "#@output/server2".should be_a_directory
   end
 
   it "empties the output directory if it already exists" do
-    old_file = given_file "#@target/server1/old-file.txt"
+    old_file = given_file "#@output/server1/old-file.txt"
 
     @config.server 'server1' do |server|
     end
@@ -55,8 +55,8 @@ describe Preparer do
     end
     prepare!
 
-    "#@target/server1/file-from-template.txt".should be_a_file
-    "#@target/server1/subdir/file-from-template-subdir.txt".should be_a_file
+    "#@output/server1/file-from-template.txt".should be_a_file
+    "#@output/server1/subdir/file-from-template-subdir.txt".should be_a_file
   end
 
 
@@ -72,8 +72,8 @@ describe Preparer do
     end
     prepare!
 
-    "#@target/server1/child-file.txt".should be_a_file
-    "#@target/server1/parent-file.txt".should be_a_file
+    "#@output/server1/child-file.txt".should be_a_file
+    "#@output/server1/parent-file.txt".should be_a_file
   end
 
   it "child template's files override parent template's files" do
@@ -86,7 +86,7 @@ describe Preparer do
     end
     prepare!
 
-    IO.read("#@target/server1/overridden.txt").should == "from child"
+    IO.read("#@output/server1/overridden.txt").should == "from child"
   end
 
   it "doesn't copy the hidden parent reference file" do
@@ -98,7 +98,7 @@ describe Preparer do
     end
     prepare!
 
-    "#@target/server1/#{DeployConfig::PARENT_REF}".should_not be_a_file
+    "#@output/server1/#{DeployConfig::PARENT_REF}".should_not be_a_file
   end
 
   it "copies normal hidden files" do
@@ -109,7 +109,7 @@ describe Preparer do
     end
     prepare!
 
-    "#@target/server1/.some-other-hidden-file".should be_a_file
+    "#@output/server1/.some-other-hidden-file".should be_a_file
   end
 
 
@@ -121,7 +121,7 @@ describe Preparer do
     end
     prepare!
 
-    properties_file = "#@target/server1/lib/config.properties"
+    properties_file = "#@output/server1/lib/config.properties"
     properties_file.should be_a_file
     IO.read(properties_file).should include('some.key=some value')
   end
@@ -135,7 +135,7 @@ describe Preparer do
     end
     prepare!
 
-    IO.read("#@target/server1/answer.txt").should == 'answer = 42'
+    IO.read("#@output/server1/answer.txt").should == 'answer = 42'
   end
 
 
@@ -156,7 +156,7 @@ describe Preparer do
     end
     prepare!
 
-    "#@target/server1/webapps/sample.war".should be_a_file
+    "#@output/server1/webapps/sample.war".should be_a_file
   end
 
   it "the webapps directory may be specified in a parent template" do
@@ -169,7 +169,7 @@ describe Preparer do
     end
     prepare!
 
-    "#@target/server1/webapps/sample.war".should be_a_file
+    "#@output/server1/webapps/sample.war".should be_a_file
   end
 
   it "doesn't copy the webapps directory tag" do
@@ -180,7 +180,7 @@ describe Preparer do
     end
     prepare!
 
-    "#@target/server1/webapps/#{DeployConfig::WEBAPPS_TAG}".should_not be_a_file
+    "#@output/server1/webapps/#{DeployConfig::WEBAPPS_TAG}".should_not be_a_file
   end
 
   it "embeds manuscript bundles inside WAR files" do
@@ -192,6 +192,6 @@ describe Preparer do
     end
     prepare!
 
-    Zip.new("#@target/server1/webapps/sample.war").list.should include('WEB-INF/lib/manuscript-library.jar')
+    Zip.new("#@output/server1/webapps/sample.war").list.should include('WEB-INF/lib/manuscript-library.jar')
   end
 end

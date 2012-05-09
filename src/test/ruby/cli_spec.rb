@@ -5,7 +5,7 @@ describe CLI do
 
   before(:each) do
     @sandbox = Dir.mktmpdir()
-    @target = "#@sandbox/target"
+    @output = "#@sandbox/target"
   end
 
   after(:each) do
@@ -22,9 +22,9 @@ describe CLI do
       end
     eos
 
-    run "prepare", config, @target
+    run "--prepare", "--config-file", config, "--output-dir", @output
 
-    "#@target/server1".should be_a_directory
+    "#@output/server1".should be_a_directory
   end
 
   it "template paths are relative to the configuration file" do
@@ -35,8 +35,8 @@ describe CLI do
       end
     eos
 
-    run "prepare", config, @target
+    run "--prepare", "--config-file", config, "--output-dir", @output
 
-    "#@target/server1/file-from-template.txt".should be_a_file
+    "#@output/server1/file-from-template.txt".should be_a_file
   end
 end
