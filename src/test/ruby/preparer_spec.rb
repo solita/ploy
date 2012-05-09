@@ -147,7 +147,7 @@ describe Preparer do
     config.maven_repository.should == "#{Dir.home}/.m2/repository"
   end
 
-  it "copies WARs from the local Maven repository to the marked WAR directory" do
+  it "copies WARs from the local Maven repository to the webapps directory" do
     given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WEBAPPS_TAG}"
 
     @config.server 'server1' do |server|
@@ -159,7 +159,20 @@ describe Preparer do
     "#@target/server1/webapps/sample.war".should be_a_file
   end
 
-  it "doesn't copy the WAR location marker" do
+  it "the webapps directory may be specified in a parent template" do
+    given_file "#@templates/parent/webapps/#{DeployConfig::WEBAPPS_TAG}"
+    given_file "#@templates/child/#{DeployConfig::PARENT_REF}", "../parent"
+
+    @config.server 'server1' do |server|
+      server.use_template "#@templates/child"
+      server.install_webapp 'com.example:sample:1.0:war'
+    end
+    prepare!
+
+    "#@target/server1/webapps/sample.war".should be_a_file
+  end
+
+  it "doesn't copy the webapps directory tag" do
     given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WEBAPPS_TAG}"
 
     @config.server 'server1' do |server|

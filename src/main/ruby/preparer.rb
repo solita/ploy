@@ -47,9 +47,8 @@ class Preparer
   end
 
   def copy_template(template_dir, output_dir)
-    parent_ref = File.join(template_dir, DeployConfig::PARENT_REF)
-    if File.exist?(parent_ref)
-      parent_dir = File.absolute_path(IO.read(parent_ref).strip, template_dir)
+    parent_dir = find_parent_template(template_dir)
+    if parent_dir
       copy_template(parent_dir, output_dir)
     end
 
@@ -57,6 +56,15 @@ class Preparer
     Dir.glob("#{template_dir}/**/*", File::FNM_DOTMATCH).
             reject { |file| special_file?(file) }.
             each { |file| copy_template_file(template_dir, file, output_dir) }
+  end
+
+  def find_parent_template(template_dir)
+    parent_ref = File.join(template_dir, DeployConfig::PARENT_REF)
+    if File.exist?(parent_ref)
+      File.absolute_path(IO.read(parent_ref).strip, template_dir)
+    else
+      nil
+    end
   end
 
   def special_file?(file)
@@ -114,7 +122,7 @@ class Preparer
     server.webapps.each { |webapp, manuscripts|
       webapp = MavenArtifact.new(webapp)
       source_file = webapp.path(@config.maven_repository)
-      target_file = File.join(output_dir, webapps_dir(server.template), webapp.simple_name)
+      target_file = File.join(output_dir, get_webapps_path(server.template), webapp.simple_name)
 
       log_info "Copying #{source_file} to #{target_file}"
       FileUtils.cp(source_file, target_file)
@@ -127,12 +135,16 @@ class Preparer
     }
   end
 
-  def webapps_dir(template_dir)
+  def get_webapps_path(template_dir)
     marker = Dir.glob("#{template_dir}/**/#{DeployConfig::WEBAPPS_TAG}").first
-    unless marker
-      raise "Did not find #{DeployConfig::WEBAPPS_TAG} from #{template_dir}"
+    if marker
+      return Pathname(File.dirname(marker)).relative_path_from(Pathname(template_dir))
     end
-    Pathname(File.dirname(marker)).relative_path_from(Pathname(template_dir))
+    parent_template_dir = find_parent_template(template_dir)
+    if parent_template_dir
+      return get_webapps_path(parent_template_dir)
+    end
+    raise "Did not find #{DeployConfig::WEBAPPS_TAG} from #{template_dir}"
   end
 
   def embed_into_zip(source_file, target_file, subdir)
