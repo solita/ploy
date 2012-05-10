@@ -11,48 +11,71 @@ class CLI
   def run!()
     options = parse_options(@args)
 
-    if options[:prepare]
-      prepare(get(:config_file, options), get(:output_dir, options))
+    if options[:tasks].include? 'prepare'
+      prepare(options[:config_file], options[:output_dir])
     end
   end
 
   private
 
   def parse_options(args)
-    options = {}
+    options = {:tasks => []}
     op = OptionParser.new do |opts|
-      opts.banner = "Usage: deployer [options]"
+      opts.banner = "Usage: deployer [OPTION]... [TASK]..."
+      opts.separator "Runs the TASKs of the deployment configuration, in the specified order."
+      opts.separator "The built-in task 'prepare' generates files from templates to the output directory."
 
-      opts.on("--prepare", "Prepare installers") do
-        options[:prepare] = true
-      end
+      opts.separator ""
+      opts.separator "Required"
 
-      opts.on("--config-file FILE", "Deployment configuration file") do |file|
+      opts.on("--config-file FILE", String, "Deployment configuration file") do |file|
         file = File.absolute_path(file)
         abort "No such file: #{file}" unless File.file? file
         options[:config_file] = file
       end
 
-      opts.on("--output-dir DIR", "Output directory for the operations") do |dir|
+      opts.on("--output-dir DIR", String, "Output directory for files generated from templates") do |dir|
         dir = File.absolute_path(dir)
         options[:output_dir] = dir
       end
 
-      opts.on("--maven-repository DIR", "Location of local Maven repository where to find the artifacts", "Default: ~/.m2/repository") do |dir|
+      opts.separator ""
+      opts.separator "Optional"
+
+      opts.on("--maven-repository DIR", String, "Location of the local Maven repository where to find any artifacts", "Default: ~/.m2/repository") do |dir|
         dir = File.absolute_path(dir)
         abort "No such directory: #{dir}" unless File.directory? dir
         options[:maven_repository] = dir
       end
+
+      opts.on_tail("-h", "--help", "Display this help and exit") do
+        puts opts
+        exit 1
+      end
     end
-    op.parse!(args)
+
+    if args.empty?
+      args << "--help"
+    end
+
+    begin
+      op.parse!(args)
+      options[:tasks] += args
+
+      raise OptionParser::MissingArgument.new("TASKS") if options[:tasks].empty?
+      raise MissingOption.new("--config-file") if options[:config_file].nil?
+      raise MissingOption.new("--output-dir") if options[:output_dir].nil?
+
+    rescue OptionParser::ParseError
+      $stderr.puts "Error: " + $!.to_s
+      exit 1
+    end
+
     options
   end
 
-  def get(key, options)
-    unless options.has_key? key
-      raise "Required parameter #{key} was missing: #{options.inspect}"
-    end
-    options[key]
+  class MissingOption < OptionParser::ParseError
+    const_set(:Reason, 'missing option'.freeze)
   end
 
 

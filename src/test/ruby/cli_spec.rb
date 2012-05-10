@@ -22,7 +22,7 @@ describe CLI do
       end
     eos
 
-    run "--prepare", "--config-file", config, "--output-dir", @output
+    run "prepare", "--config-file", config, "--output-dir", @output
 
     "#@output/server1".should be_a_directory
   end
@@ -35,7 +35,7 @@ describe CLI do
       end
     eos
 
-    run "--prepare", "--config-file", config, "--output-dir", @output
+    run "prepare", "--config-file", config, "--output-dir", @output
 
     "#@output/server1/file-from-template.txt".should be_a_file
   end
