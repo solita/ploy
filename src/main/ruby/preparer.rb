@@ -121,7 +121,7 @@ class Preparer
   # Webapps
 
   def build_webapps(output_dir, server)
-    server.webapps.each { |webapp, manuscripts|
+    server.webapps.each { |webapp, jar_bundles|
       webapp = MavenArtifact.new(webapp)
       source_file = webapp.path(@config.maven_repository)
       target_file = File.join(output_dir, get_webapps_path(server.template), webapp.simple_name)
@@ -129,9 +129,9 @@ class Preparer
       log_info "Copying #{source_file} to #{target_file}"
       FileUtils.cp(source_file, target_file)
 
-      manuscripts.each { |manuscript|
-        manuscript = MavenArtifact.new(manuscript)
-        bundle_file = manuscript.path(@config.maven_repository)
+      jar_bundles.each { |jar_bundle|
+        jar_bundle = MavenArtifact.new(jar_bundle)
+        bundle_file = jar_bundle.path(@config.maven_repository)
         embed_into_zip(bundle_file, target_file, 'WEB-INF/lib')
       }
     }

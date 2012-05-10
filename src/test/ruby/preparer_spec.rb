@@ -183,15 +183,15 @@ describe Preparer do
     "#@output/server1/webapps/#{DeployConfig::WEBAPPS_TAG}".should_not be_a_file
   end
 
-  it "embeds manuscript bundles inside WAR files" do
+  it "embeds JARs files from ZIP bundles inside WAR files" do
     given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WEBAPPS_TAG}"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/basic-webapp"
-      server.install_webapp 'com.example:sample:1.0:war', ['com.example:manuscript:1.0:zip:bundle']
+      server.install_webapp 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
     end
     prepare!
 
-    Zip.new("#@output/server1/webapps/sample.war").list.should include('WEB-INF/lib/manuscript-library.jar')
+    Zip.new("#@output/server1/webapps/sample.war").list.should include('WEB-INF/lib/extralibs-library.jar')
   end
 end

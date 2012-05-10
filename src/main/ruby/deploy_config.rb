@@ -58,9 +58,9 @@ class ServerConfig
     @properties_files[target_path] = properties
   end
 
-  def install_webapp(webapp, manuscripts = [])
+  def install_webapp(webapp, jar_bundles = [])
     assert_type(:webapp, webapp, String)
-    assert_type(:manuscripts, manuscripts, Array)
-    @webapps[webapp] = manuscripts
+    assert_type(:jar_bundles, jar_bundles, Array)
+    @webapps[webapp] = jar_bundles
   end
 end
