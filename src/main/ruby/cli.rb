@@ -1,5 +1,6 @@
 require_relative 'deploy_config'
 require_relative 'preparer'
+require_relative 'task_executor'
 require 'optparse'
 
 class CLI
