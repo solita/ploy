@@ -12,12 +12,14 @@ class DeployConfig
   attr_reader :template_replacements,
               :servers
 
-  attr_accessor :maven_repository
+  attr_accessor :maven_repository,
+                :default_tasks
 
   def initialize()
     @template_replacements = {}
     @servers = []
     @maven_repository = File.join(Dir.home, '.m2/repository')
+    @default_tasks = {}
   end
 
   def []=(key, value)
@@ -29,7 +31,7 @@ class DeployConfig
     hostnames.each { |hostname|
       assert_type(:hostname, hostname, String)
 
-      server_config = ServerConfig.new(hostname)
+      server_config = ServerConfig.new(hostname, @default_tasks)
       yield server_config
       @servers << server_config
     }
@@ -44,9 +46,9 @@ class ServerConfig
               :properties_files,
               :webapps
 
-  def initialize(hostname)
+  def initialize(hostname, default_tasks)
     @hostname = hostname
-    @tasks = {}
+    @tasks = {}.replace(default_tasks)
     @template = nil
     @properties_files = {}
     @webapps = {}

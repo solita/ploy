@@ -20,6 +20,9 @@ describe TaskExecutor do
     executor.execute(tasks)
   end
 
+
+  # executing
+
   it "servers can have tasks which can be executed by name" do
     task1 = proc do
       @spy << "run"
@@ -90,6 +93,9 @@ describe TaskExecutor do
     @spy.should == ["task1 server1", "task1 server2", "task2 server1", "task2 server2"]
   end
 
+
+  # configuration & reuse
+
   it "reusable tasks can take the server as a parameter" do
     task1 = proc do |server|
       @spy << server.hostname
@@ -102,6 +108,37 @@ describe TaskExecutor do
 
     @spy.should == ["server1", "server2", "server3"]
   end
+
+  it "default tasks are automatically added to all servers" do
+    @config.default_tasks = {:task1 => proc { @spy << "default task1" }}
+
+    @config.server 'server1' do
+    end
+
+    execute :task1
+
+    @spy.should == ["default task1"]
+  end
+
+  it "default tasks can be customized per server" do
+    @config.default_tasks = {:task1 => proc { @spy << "default task1" }}
+
+    @config.server 'server1' do |server|
+      default_task1 = server.tasks[:task1]
+      server.tasks[:task1] = proc do |s|
+        @spy << "before"
+        default_task1.call(s)
+        @spy << "after"
+      end
+    end
+
+    execute :task1
+
+    @spy.should == ["before", "default task1", "after"]
+  end
+
+
+  # failure handling & reporting
 
   it "when a task fails, that server's subsequent tasks are skipped" do
     @config.server 'server1' do |server|
@@ -119,7 +156,7 @@ describe TaskExecutor do
     @spy.should == ["task1"]
   end
 
-  it "when a task fails, unrelated servers' tasks are anyways executed'" do
+  it "when a task fails, unrelated servers' tasks are executed normally" do
     @config.server 'server1', 'server2' do |server|
       server.tasks[:task1] = proc do
         @spy << server.hostname
