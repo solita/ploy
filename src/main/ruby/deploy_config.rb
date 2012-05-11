@@ -16,7 +16,7 @@ class DeployConfig
 
   def initialize()
     @template_replacements = {}
-    @servers = {}
+    @servers = []
     @maven_repository = File.join(Dir.home, '.m2/repository')
   end
 
@@ -26,23 +26,28 @@ class DeployConfig
   end
 
   def server(*hostnames)
-    server_config = ServerConfig.new
-    yield server_config
-
     hostnames.each { |hostname|
       assert_type(:hostname, hostname, String)
-      @servers[hostname] = server_config
+
+      server_config = ServerConfig.new(hostname)
+      yield server_config
+      @servers << server_config
     }
   end
 end
 
 class ServerConfig
 
-  attr_reader :template,
+  attr_reader :hostname,
+              :tasks,
+              :template,
               :properties_files,
               :webapps
 
-  def initialize()
+  def initialize(hostname)
+    @hostname = hostname
+    @tasks = {}
+    @template = nil
     @properties_files = {}
     @webapps = {}
   end

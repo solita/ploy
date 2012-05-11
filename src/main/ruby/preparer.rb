@@ -14,8 +14,8 @@ class Preparer
   end
 
   def build_all!
-    @config.servers.each { |hostname, server|
-      output_dir = File.join(@output_dir, hostname)
+    @config.servers.each { |server|
+      output_dir = File.join(@output_dir, server.hostname)
       FileUtils.rm_rf(output_dir)
       FileUtils.mkdir_p(output_dir)
       build_server!(output_dir, server)
