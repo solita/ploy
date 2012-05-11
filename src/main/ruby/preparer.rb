@@ -14,20 +14,23 @@ class Preparer
   end
 
   def build_all!
-    @config.servers.each { |server|
-      output_dir = File.join(@output_dir, server.hostname)
-      FileUtils.rm_rf(output_dir)
-      FileUtils.mkdir_p(output_dir)
-      build_server!(output_dir, server)
-    }
+    @config.servers.each { |server| build_server!(server) }
+  end
+
+  def build_server!(server)
+    output_dir = create_output_dir(server)
+    build_templates(output_dir, server)
+    build_properties_files(output_dir, server)
+    build_webapps(output_dir, server)
   end
 
   private
 
-  def build_server!(output_dir, server)
-    build_templates(output_dir, server)
-    build_properties_files(output_dir, server)
-    build_webapps(output_dir, server)
+  def create_output_dir(server)
+    output_dir = File.join(@output_dir, server.hostname)
+    FileUtils.rm_rf(output_dir)
+    FileUtils.mkdir_p(output_dir)
+    output_dir
   end
 
   def log_info(message)

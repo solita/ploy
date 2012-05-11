@@ -10,10 +10,24 @@ class CLI
 
   def run!()
     options = parse_options(@args)
+    config_file = options[:config_file]
+    output_dir = options[:output_dir]
+    tasks = options[:tasks]
 
-    if options[:tasks].include? 'prepare'
-      prepare(options[:config_file], options[:output_dir])
+    config = DeployConfig.new
+    prepare_task = proc do |server|
+      preparer = Preparer.new(config, output_dir)
+      preparer.build_server!(server)
     end
+    config.default_tasks = {:prepare => prepare_task}
+
+    Dir.chdir(File.dirname(config_file)) do
+      eval(IO.read(config_file), get_binding_for_config_file(config), config_file)
+    end
+
+    listener = DummyListener.new # TODO
+    executor = TaskExecutor.new(config, listener)
+    executor.execute(tasks)
   end
 
   private
@@ -60,7 +74,7 @@ class CLI
 
     begin
       op.parse!(args)
-      options[:tasks] += args
+      options[:tasks] += args.map { |s| s.to_sym }
 
       raise OptionParser::MissingArgument.new("TASKS") if options[:tasks].empty?
       raise MissingOption.new("--config-file") if options[:config_file].nil?
@@ -78,21 +92,19 @@ class CLI
     const_set(:Reason, 'missing option'.freeze)
   end
 
-
-  # Commands
-
-  def prepare(config_file, output_dir)
-    config = DeployConfig.new
-    Dir.chdir(File.dirname(config_file)) do
-      eval(IO.read(config_file), get_binding_for_config_file(config), config_file)
-    end
-
-    preparer = Preparer.new(config, output_dir)
-    preparer.build_all!
-  end
-
   #noinspection RubyUnusedLocalVariable
   def get_binding_for_config_file(config)
     binding
+  end
+end
+
+class DummyListener # TODO
+  def task_succeeded(hostname, task)
+  end
+
+  def task_failed(hostname, task, exception)
+  end
+
+  def task_skipped(hostname, task)
   end
 end
