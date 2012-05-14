@@ -8,8 +8,6 @@ end
 
 class DeployConfig
 
-  TEMPLATE_CONFIG = '.template.rb'
-
   attr_reader :template_replacements,
               :servers
 

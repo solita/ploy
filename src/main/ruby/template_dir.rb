@@ -1,5 +1,7 @@
 class TemplateDir
 
+  CONFIG_FILE = '.template.rb'
+
   attr_reader :base_dir,
               :parent
 
@@ -11,17 +13,27 @@ class TemplateDir
     @parent = TemplateDir.new(path_to(parent)) if parent
   end
 
+  def to_s
+    @base_dir
+  end
+
   def get_required(key)
     value = @config[key]
     raise "No #{key} found in #@config" if value.nil?
     value
   end
 
-  def to_s
-    @base_dir
+  def files
+    Dir.glob("#@base_dir/**/*", File::FNM_DOTMATCH).reject { |file| special_file?(file) }
   end
 
   private
+
+  SPECIAL_FILES = ['.', '..', TemplateDir::CONFIG_FILE]
+
+  def special_file?(file)
+    SPECIAL_FILES.include?(File.basename(file))
+  end
 
   def path_to(relative_path)
     File.absolute_path(relative_path, @base_dir)
@@ -29,7 +41,7 @@ class TemplateDir
 
   def self.get_template_config(template_dir)
     my_config = {}
-    my_config_file = File.join(template_dir, DeployConfig::TEMPLATE_CONFIG)
+    my_config_file = File.join(template_dir, TemplateDir::CONFIG_FILE)
     if File.exist?(my_config_file)
       my_config = eval(IO.read(my_config_file))
     end

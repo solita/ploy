@@ -56,16 +56,8 @@ class Preparer
       copy_template(parent, output_dir)
     end
 
-    source_dir = template.base_dir
     log_info "Copying template #{template} to #{output_dir}"
-    Dir.glob("#{source_dir}/**/*", File::FNM_DOTMATCH).
-            reject { |file| special_file?(file) }.
-            each { |file| copy_template_file(source_dir, file, output_dir) }
-  end
-
-  def special_file?(file)
-    special_files = ['.', '..', DeployConfig::TEMPLATE_CONFIG]
-    special_files.include?(File.basename(file))
+    template.files.each { |file| copy_template_file(template.base_dir, file, output_dir) }
   end
 
   def copy_template_file(source_basedir, source_file, target_basedir)

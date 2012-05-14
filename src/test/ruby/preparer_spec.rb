@@ -65,7 +65,7 @@ describe Preparer do
   it "copies parent template's files in addition to the child template's files" do
     given_file "#@templates/parent/parent-file.txt"
     given_file "#@templates/child/child-file.txt"
-    given_file "#@templates/child/#{DeployConfig::TEMPLATE_CONFIG}", "{ :parent => '../parent' }"
+    given_file "#@templates/child/#{TemplateDir::CONFIG_FILE}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/child"
@@ -79,7 +79,7 @@ describe Preparer do
   it "child template's files override parent template's files" do
     given_file "#@templates/parent/overridden.txt", "from parent"
     given_file "#@templates/child/overridden.txt", "from child"
-    given_file "#@templates/child/#{DeployConfig::TEMPLATE_CONFIG}", "{ :parent => '../parent' }"
+    given_file "#@templates/child/#{TemplateDir::CONFIG_FILE}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/child"
@@ -90,14 +90,14 @@ describe Preparer do
   end
 
   it "doesn't copy the hidden template configuration file" do
-    given_file "#@templates/example/#{DeployConfig::TEMPLATE_CONFIG}", "{}"
+    given_file "#@templates/example/#{TemplateDir::CONFIG_FILE}", "{}"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/example"
     end
     prepare!
 
-    "#@output/server1/#{DeployConfig::TEMPLATE_CONFIG}".should_not be_a_file
+    "#@output/server1/#{TemplateDir::CONFIG_FILE}".should_not be_a_file
   end
 
   it "copies normal hidden files" do
@@ -147,7 +147,7 @@ describe Preparer do
   end
 
   it "copies WARs from the local Maven repository to the webapps directory" do
-    given_file "#@templates/basic-webapp/#{DeployConfig::TEMPLATE_CONFIG}", "{ :webapps => 'webapps' }"
+    given_file "#@templates/basic-webapp/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/basic-webapp"
@@ -159,8 +159,8 @@ describe Preparer do
   end
 
   it "the webapps directory may be specified in a parent template" do
-    given_file "#@templates/parent/#{DeployConfig::TEMPLATE_CONFIG}", "{ :webapps => 'webapps' }"
-    given_file "#@templates/child/#{DeployConfig::TEMPLATE_CONFIG}", "{ :parent => '../parent' }"
+    given_file "#@templates/parent/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
+    given_file "#@templates/child/#{TemplateDir::CONFIG_FILE}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/child"
@@ -172,7 +172,7 @@ describe Preparer do
   end
 
   it "embeds JARs files from ZIP bundles inside WAR files" do
-    given_file "#@templates/basic-webapp/#{DeployConfig::TEMPLATE_CONFIG}", "{ :webapps => 'webapps' }"
+    given_file "#@templates/basic-webapp/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/basic-webapp"
