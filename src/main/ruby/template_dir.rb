@@ -41,9 +41,6 @@ class TemplateDir
 
   def filtered_file?(file)
     patterns = @config[:filter]
-    if patterns.nil?
-      patterns = [] # XXX: use default values
-    end
     patterns.any? { |pattern| File.fnmatch?(pattern, file) }
   end
 
@@ -56,6 +53,8 @@ class TemplateDir
   def path_to(relative_path)
     File.absolute_path(relative_path, @base_dir)
   end
+
+  DEFAULT_CONFIG = {:filter => []}
 
   def self.get_template_config(template_dir)
     my_config = {}
@@ -70,8 +69,8 @@ class TemplateDir
       parent_config = get_template_config(File.absolute_path(parent, template_dir))
     end
 
-    # TODO: default values (e.g. :filter => [])
     combined = {}
+    combined.merge!(TemplateDir::DEFAULT_CONFIG)
     combined.merge!(parent_config)
     combined.merge!(my_config)
     combined
