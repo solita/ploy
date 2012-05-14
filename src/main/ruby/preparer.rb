@@ -57,20 +57,26 @@ class Preparer
     end
 
     log_info "Copying template #{template} to #{output_dir}"
-    template.files.each { |file| copy_template_file(template.base_dir, file, output_dir) }
+    template.filtered_files.each { |file| copy_filtered(file, get_target_file(template.base_dir, file, output_dir)) }
+    template.non_filtered_files.each { |file| copy_as_is(file, get_target_file(template.base_dir, file, output_dir)) }
   end
 
-  def copy_template_file(source_basedir, source_file, target_basedir)
+  def get_target_file(source_basedir, source_file, target_basedir)
     relative_path = Pathname(source_file).relative_path_from(Pathname(source_basedir))
-    target_file = File.join(target_basedir, relative_path)
-    if File.directory?(source_file)
-      FileUtils.mkdir(target_file)
-    else
-      content = interpolate_template_file(source_file)
-      File.open(target_file, 'wb') { |file|
-        file.write(content)
-      }
-    end
+    File.join(target_basedir, relative_path)
+  end
+
+  def copy_as_is(source_file, target_file)
+    create_parent_dirs(target_file)
+    FileUtils.cp(source_file, target_file)
+  end
+
+  def copy_filtered(source_file, target_file)
+    create_parent_dirs(target_file)
+    content = interpolate_template_file(source_file)
+    File.open(target_file, 'wb') { |file|
+      file.write(content)
+    }
   end
 
   def interpolate_template_file(template_file)

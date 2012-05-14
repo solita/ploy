@@ -125,7 +125,8 @@ describe Preparer do
     IO.read(properties_file).should include('some.key=some value')
   end
 
-  it "interpolates variables in template files" do
+  it "interpolates variables in filtered template files" do
+    given_file "#@templates/example/#{TemplateDir::CONFIG_FILE}", "{ :filter => ['*.txt'] }"
     given_file "#@templates/example/answer.txt", 'answer = <%= answer %>'
 
     @config[:answer] = 42
@@ -135,6 +136,21 @@ describe Preparer do
     prepare!
 
     IO.read("#@output/server1/answer.txt").should == 'answer = 42'
+  end
+
+  it "doesn't interpolate variables in non-filtered files" do
+    given_file "#@templates/example/#{TemplateDir::CONFIG_FILE}", "{ :filter => ['*.a'] }"
+    given_file "#@templates/example/filtered.a", 'answer = <%= answer %>'
+    given_file "#@templates/example/non-filtered.b", 'answer = <%= answer %>'
+
+    @config[:answer] = 42
+    @config.server 'server1' do |server|
+      server.use_template "#@templates/example"
+    end
+    prepare!
+
+    IO.read("#@output/server1/filtered.a").should == 'answer = 42'
+    IO.read("#@output/server1/non-filtered.b").should == 'answer = <%= answer %>'
   end
 
 

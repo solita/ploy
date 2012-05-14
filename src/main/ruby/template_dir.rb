@@ -23,11 +23,29 @@ class TemplateDir
     value
   end
 
-  def files
-    Dir.glob("#@base_dir/**/*", File::FNM_DOTMATCH).reject { |file| special_file?(file) }
+  def filtered_files
+    all_files.select { |f| filtered_file?(f) }
+  end
+
+  def non_filtered_files
+    all_files.reject { |f| filtered_file?(f) }
+  end
+
+  def all_files
+    Dir.glob("#@base_dir/**/*", File::FNM_DOTMATCH).
+            reject { |file| special_file?(file) }.
+            reject { |file| File.directory?(file) }
   end
 
   private
+
+  def filtered_file?(file)
+    patterns = @config[:filter]
+    if patterns.nil?
+      patterns = [] # XXX: use default values
+    end
+    patterns.any? { |pattern| File.fnmatch?(pattern, file) }
+  end
 
   SPECIAL_FILES = ['.', '..', TemplateDir::CONFIG_FILE]
 
