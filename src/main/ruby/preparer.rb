@@ -64,23 +64,32 @@ class Preparer
   end
 
   def find_parent_template(template_dir)
-    template_config = get_template_config(template_dir)
-    parent_path = template_config[:parent]
-    if parent_path.nil?
+    config = get_template_config(template_dir)
+    parent = config[:parent]
+    if parent.nil?
       return nil
     end
-    File.absolute_path(parent_path, template_dir) unless parent_path.nil?
+    File.absolute_path(parent, template_dir)
   end
 
   def get_template_config(template_dir)
-    # TODO: inherit from parent
-    template_config_file = File.join(template_dir, DeployConfig::TEMPLATE_CONFIG)
-    if File.exist?(template_config_file)
-      eval(IO.read(template_config_file))
-    else
-      # TODO: default values
-      {}
+    my_config = {}
+    my_config_file = File.join(template_dir, DeployConfig::TEMPLATE_CONFIG)
+    if File.exist?(my_config_file)
+      my_config = eval(IO.read(my_config_file))
     end
+
+    parent_config = {}
+    parent = my_config[:parent]
+    if parent
+      parent_config = get_template_config(File.absolute_path(parent, template_dir))
+    end
+
+    # TODO: default values (e.g. :filter => [])
+    combined = {}
+    combined.merge!(parent_config)
+    combined.merge!(my_config)
+    combined
   end
 
   def special_file?(file)
@@ -138,7 +147,7 @@ class Preparer
     server.webapps.each { |webapp, jar_bundles|
       webapp = MavenArtifact.new(webapp)
       source_file = webapp.path(@config.maven_repository)
-      target_file = File.join(output_dir, get_webapps_path(server.template), webapp.simple_name)
+      target_file = File.join(output_dir, get_required_option(:webapps, server.template), webapp.simple_name)
 
       log_info "Copying #{source_file} to #{target_file}"
       create_parent_dirs(target_file)
@@ -152,18 +161,11 @@ class Preparer
     }
   end
 
-  def get_webapps_path(template_dir)
+  def get_required_option(key, template_dir)
     template_config = get_template_config(template_dir)
-    webapps_path = template_config[:webapps]
-    if webapps_path
-      return webapps_path
-    end
-
-    parent_template_dir = find_parent_template(template_dir)
-    if parent_template_dir
-      return get_webapps_path(parent_template_dir)
-    end
-    raise "Did not find :webapps from #{template_dir}"
+    webapps = template_config[key]
+    raise "Template #{template_dir} did not define #{key} in #{template_config}" if webapps.nil?
+    webapps
   end
 
   def embed_into_zip(source_file, target_file, subdir)
