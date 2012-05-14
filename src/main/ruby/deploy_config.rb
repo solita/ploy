@@ -6,7 +6,7 @@ end
 
 class DeployConfig
 
-  PARENT_REF = '.parent'
+  TEMPLATE_CONFIG = '.template.rb'
   WEBAPPS_TAG = '.webapps'
 
   attr_reader :template_replacements,

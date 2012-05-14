@@ -28,7 +28,7 @@ describe Preparer do
   # Template basics
 
   it "creates an output directory for each server" do
-    @config.server 'server1', 'server2' do |server|
+    @config.server 'server1', 'server2' do
     end
     prepare!
 
@@ -39,7 +39,7 @@ describe Preparer do
   it "empties the output directory if it already exists" do
     old_file = given_file "#@output/server1/old-file.txt"
 
-    @config.server 'server1' do |server|
+    @config.server 'server1' do
     end
     prepare!
 
@@ -65,7 +65,7 @@ describe Preparer do
   it "copies parent template's files in addition to the child template's files" do
     given_file "#@templates/parent/parent-file.txt"
     given_file "#@templates/child/child-file.txt"
-    given_file "#@templates/child/#{DeployConfig::PARENT_REF}", "../parent\n"
+    given_file "#@templates/child/#{DeployConfig::TEMPLATE_CONFIG}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/child"
@@ -79,7 +79,7 @@ describe Preparer do
   it "child template's files override parent template's files" do
     given_file "#@templates/parent/overridden.txt", "from parent"
     given_file "#@templates/child/overridden.txt", "from child"
-    given_file "#@templates/child/#{DeployConfig::PARENT_REF}", "../parent\n"
+    given_file "#@templates/child/#{DeployConfig::TEMPLATE_CONFIG}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/child"
@@ -89,16 +89,15 @@ describe Preparer do
     IO.read("#@output/server1/overridden.txt").should == "from child"
   end
 
-  it "doesn't copy the hidden parent reference file" do
-    given_dir "#@templates/parent"
-    given_file "#@templates/child/#{DeployConfig::PARENT_REF}", "../parent\n"
+  it "doesn't copy the hidden template configuration file" do
+    given_file "#@templates/example/#{DeployConfig::TEMPLATE_CONFIG}", "{}"
 
     @config.server 'server1' do |server|
-      server.use_template "#@templates/child"
+      server.use_template "#@templates/example"
     end
     prepare!
 
-    "#@output/server1/#{DeployConfig::PARENT_REF}".should_not be_a_file
+    "#@output/server1/#{DeployConfig::TEMPLATE_CONFIG}".should_not be_a_file
   end
 
   it "copies normal hidden files" do
@@ -161,7 +160,7 @@ describe Preparer do
 
   it "the webapps directory may be specified in a parent template" do
     given_file "#@templates/parent/webapps/#{DeployConfig::WEBAPPS_TAG}"
-    given_file "#@templates/child/#{DeployConfig::PARENT_REF}", "../parent"
+    given_file "#@templates/child/#{DeployConfig::TEMPLATE_CONFIG}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/child"

@@ -64,16 +64,20 @@ class Preparer
   end
 
   def find_parent_template(template_dir)
-    parent_ref = File.join(template_dir, DeployConfig::PARENT_REF)
-    if File.exist?(parent_ref)
-      File.absolute_path(IO.read(parent_ref).strip, template_dir)
-    else
-      nil
+    template_config_file = File.join(template_dir, DeployConfig::TEMPLATE_CONFIG)
+    unless File.exist?(template_config_file)
+      return nil
     end
+    template_config = eval(IO.read(template_config_file))
+    parent_path = template_config[:parent]
+    if parent_path.nil?
+      return nil
+    end
+    File.absolute_path(parent_path, template_dir) unless parent_path.nil?
   end
 
   def special_file?(file)
-    special_files = ['.', '..', DeployConfig::PARENT_REF, DeployConfig::WEBAPPS_TAG]
+    special_files = ['.', '..', DeployConfig::TEMPLATE_CONFIG, DeployConfig::WEBAPPS_TAG]
     special_files.include?(File.basename(file))
   end
 
