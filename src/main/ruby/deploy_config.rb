@@ -1,3 +1,5 @@
+require_relative 'template_dir'
+
 def assert_type(name, value, type)
   unless value.kind_of? type
     raise "#{name}'s type must be #{type}, but was #{value.class.name}"
@@ -55,7 +57,7 @@ class ServerConfig
 
   def use_template(source_path)
     assert_type(:source_path, source_path, String)
-    @template = File.absolute_path(source_path)
+    @template = TemplateDir.new(File.absolute_path(source_path))
   end
 
   def use_properties(target_path, properties)
