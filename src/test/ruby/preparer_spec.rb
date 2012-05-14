@@ -147,7 +147,7 @@ describe Preparer do
   end
 
   it "copies WARs from the local Maven repository to the webapps directory" do
-    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WEBAPPS_TAG}"
+    given_file "#@templates/basic-webapp/#{DeployConfig::TEMPLATE_CONFIG}", "{ :webapps => 'webapps' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/basic-webapp"
@@ -159,7 +159,7 @@ describe Preparer do
   end
 
   it "the webapps directory may be specified in a parent template" do
-    given_file "#@templates/parent/webapps/#{DeployConfig::WEBAPPS_TAG}"
+    given_file "#@templates/parent/#{DeployConfig::TEMPLATE_CONFIG}", "{ :webapps => 'webapps' }"
     given_file "#@templates/child/#{DeployConfig::TEMPLATE_CONFIG}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
@@ -171,19 +171,8 @@ describe Preparer do
     "#@output/server1/webapps/sample.war".should be_a_file
   end
 
-  it "doesn't copy the webapps directory tag" do
-    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WEBAPPS_TAG}"
-
-    @config.server 'server1' do |server|
-      server.use_template "#@templates/basic-webapp"
-    end
-    prepare!
-
-    "#@output/server1/webapps/#{DeployConfig::WEBAPPS_TAG}".should_not be_a_file
-  end
-
   it "embeds JARs files from ZIP bundles inside WAR files" do
-    given_file "#@templates/basic-webapp/webapps/#{DeployConfig::WEBAPPS_TAG}"
+    given_file "#@templates/basic-webapp/#{DeployConfig::TEMPLATE_CONFIG}", "{ :webapps => 'webapps' }"
 
     @config.server 'server1' do |server|
       server.use_template "#@templates/basic-webapp"

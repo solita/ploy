@@ -64,11 +64,7 @@ class Preparer
   end
 
   def find_parent_template(template_dir)
-    template_config_file = File.join(template_dir, DeployConfig::TEMPLATE_CONFIG)
-    unless File.exist?(template_config_file)
-      return nil
-    end
-    template_config = eval(IO.read(template_config_file))
+    template_config = get_template_config(template_dir)
     parent_path = template_config[:parent]
     if parent_path.nil?
       return nil
@@ -76,8 +72,19 @@ class Preparer
     File.absolute_path(parent_path, template_dir) unless parent_path.nil?
   end
 
+  def get_template_config(template_dir)
+    # TODO: inherit from parent
+    template_config_file = File.join(template_dir, DeployConfig::TEMPLATE_CONFIG)
+    if File.exist?(template_config_file)
+      eval(IO.read(template_config_file))
+    else
+      # TODO: default values
+      {}
+    end
+  end
+
   def special_file?(file)
-    special_files = ['.', '..', DeployConfig::TEMPLATE_CONFIG, DeployConfig::WEBAPPS_TAG]
+    special_files = ['.', '..', DeployConfig::TEMPLATE_CONFIG]
     special_files.include?(File.basename(file))
   end
 
@@ -134,6 +141,7 @@ class Preparer
       target_file = File.join(output_dir, get_webapps_path(server.template), webapp.simple_name)
 
       log_info "Copying #{source_file} to #{target_file}"
+      create_parent_dirs(target_file)
       FileUtils.cp(source_file, target_file)
 
       jar_bundles.each { |jar_bundle|
@@ -145,15 +153,17 @@ class Preparer
   end
 
   def get_webapps_path(template_dir)
-    marker = Dir.glob("#{template_dir}/**/#{DeployConfig::WEBAPPS_TAG}").first
-    if marker
-      return Pathname(File.dirname(marker)).relative_path_from(Pathname(template_dir))
+    template_config = get_template_config(template_dir)
+    webapps_path = template_config[:webapps]
+    if webapps_path
+      return webapps_path
     end
+
     parent_template_dir = find_parent_template(template_dir)
     if parent_template_dir
       return get_webapps_path(parent_template_dir)
     end
-    raise "Did not find #{DeployConfig::WEBAPPS_TAG} from #{template_dir}"
+    raise "Did not find :webapps from #{template_dir}"
   end
 
   def embed_into_zip(source_file, target_file, subdir)

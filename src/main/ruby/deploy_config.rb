@@ -7,7 +7,6 @@ end
 class DeployConfig
 
   TEMPLATE_CONFIG = '.template.rb'
-  WEBAPPS_TAG = '.webapps'
 
   attr_reader :template_replacements,
               :servers
