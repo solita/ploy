@@ -10,9 +10,8 @@ class Preparer
 
   attr_writer :logging
 
-  def initialize(config, output_dir, logger)
+  def initialize(config, logger)
     @config = config
-    @output_dir = output_dir
     @logger = logger
     @logging = true
   end
@@ -22,28 +21,27 @@ class Preparer
   end
 
   def build_server!(server)
-    output_dir = create_output_dir(server)
-    build_templates(output_dir, server)
-    build_properties_files(output_dir, server)
-    build_webapps(output_dir, server)
+    create_output_dir(server)
+    build_templates(server)
+    build_properties_files(server)
+    build_webapps(server)
   end
 
   private
 
   def create_output_dir(server)
-    output_dir = File.join(@output_dir, server.hostname)
-    FileUtils.rm_rf(output_dir)
-    FileUtils.mkdir_p(output_dir)
-    output_dir
+    dir = server.output_dir
+    FileUtils.rm_rf(dir)
+    FileUtils.mkdir_p(dir)
   end
 
 
   # Templates
 
-  def build_templates(output_dir, server)
+  def build_templates(server)
     template = server.template
     if template
-      copy_template(template, output_dir)
+      copy_template(template, server.output_dir)
     end
   end
 
@@ -84,9 +82,9 @@ class Preparer
 
   # Properties files
 
-  def build_properties_files(output_dir, server)
+  def build_properties_files(server)
     server.properties_files.each { |relative_path, properties|
-      output_file = File.join(output_dir, relative_path)
+      output_file = File.join(server.output_dir, relative_path)
       write_properties_file(properties, output_file)
     }
   end
@@ -109,11 +107,11 @@ class Preparer
 
   # Webapps
 
-  def build_webapps(output_dir, server)
+  def build_webapps(server)
     server.webapps.each { |webapp, jar_bundles|
       webapp = MavenArtifact.new(webapp)
       source_file = webapp.path(@config.maven_repository)
-      target_file = File.join(output_dir, server.template.get_required(:webapps), webapp.simple_name)
+      target_file = File.join(server.output_dir, server.template.get_required(:webapps), webapp.simple_name)
 
       @logger.info "Copying #{source_file} to #{target_file}"
       create_parent_dirs(target_file)

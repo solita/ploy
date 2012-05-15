@@ -16,9 +16,9 @@ class CLI
     output_dir = options[:output_dir]
     tasks = options[:tasks]
 
-    config = DeployConfig.new
+    config = DeployConfig.new(output_dir)
     prepare_task = proc do |server|
-      preparer = Preparer.new(config, output_dir, @logger)
+      preparer = Preparer.new(config, @logger)
       preparer.build_server!(server)
     end
     config.default_tasks = {:prepare => prepare_task}

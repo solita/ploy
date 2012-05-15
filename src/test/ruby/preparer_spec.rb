@@ -8,10 +8,10 @@ describe Preparer do
   before(:each) do
     @sandbox = Dir.mktmpdir()
     @templates = given_dir "#@sandbox/templates"
-    @output = given_dir "#@sandbox/target"
+    @output = given_dir "#@sandbox/output"
     @logger = TestLogger.new
 
-    @config = DeployConfig.new
+    @config = DeployConfig.new(@output)
     @config.maven_repository = "testdata/maven-repository"
   end
 
@@ -21,7 +21,7 @@ describe Preparer do
 
 
   def prepare!
-    preparer = Preparer.new(@config, @output, @logger)
+    preparer = Preparer.new(@config, @logger)
     preparer.logging = false
     preparer.build_all!
   end
@@ -159,7 +159,7 @@ describe Preparer do
   # Maven artifacts
 
   it "by default, uses the default location of the local Maven repository" do
-    config = DeployConfig.new
+    config = DeployConfig.new(@output)
 
     config.maven_repository.should == "#{Dir.home}/.m2/repository"
   end

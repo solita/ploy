@@ -6,7 +6,7 @@ describe TaskExecutor do
 
   before(:each) do
     @sandbox = Dir.mktmpdir()
-    @config = DeployConfig.new
+    @config = DeployConfig.new("#@sandbox/output")
     @listener = double("null-listener").as_null_object
     @spy = []
   end

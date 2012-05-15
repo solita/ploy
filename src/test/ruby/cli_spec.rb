@@ -6,7 +6,7 @@ describe CLI do
 
   before(:each) do
     @sandbox = Dir.mktmpdir()
-    @output = "#@sandbox/target"
+    @output = "#@sandbox/output"
     @logger = TestLogger.new
   end
 
@@ -40,5 +40,19 @@ describe CLI do
     run "prepare", "--config-file", config, "--output-dir", @output
 
     "#@output/server1/file-from-template.txt".should be_a_file
+  end
+
+  it "server configuration knows the location of the server's output directory" do
+    config = given_file "#@sandbox/config.rb", <<-eos
+      config.server 'server1' do |server|
+        server.tasks[:task1] = proc do
+          File.open(server.output_dir+"/result.txt", 'w') {}
+        end
+      end
+    eos
+
+    run "prepare", "task1", "--config-file", config, "--output-dir", @output
+
+    "#@output/server1/result.txt".should be_a_file
   end
 end
