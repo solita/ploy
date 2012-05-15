@@ -33,8 +33,8 @@ class TemplateDir
 
   def all_files
     Dir.glob("#@base_dir/**/*", File::FNM_DOTMATCH).
-            reject { |file| special_file?(file) }.
-            reject { |file| File.directory?(file) }
+            reject { |file| File.directory?(file) }.
+            reject { |file| File.basename(file) == TemplateDir::CONFIG_FILE }
   end
 
   private
@@ -42,12 +42,6 @@ class TemplateDir
   def filtered_file?(file)
     patterns = @config[:filter]
     patterns.any? { |pattern| File.fnmatch?(pattern, file) }
-  end
-
-  SPECIAL_FILES = ['.', '..', TemplateDir::CONFIG_FILE]
-
-  def special_file?(file)
-    SPECIAL_FILES.include?(File.basename(file))
   end
 
   def path_to(relative_path)
