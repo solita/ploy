@@ -53,7 +53,7 @@ describe Preparer do
     given_file "#@templates/example/subdir/file-from-template-subdir.txt"
 
     @config.server 'server1' do |server|
-      server.use_template "#@templates/example"
+      server.based_on_template "#@templates/example"
     end
     prepare!
 
@@ -70,7 +70,7 @@ describe Preparer do
     given_file "#@templates/child/#{TemplateDir::CONFIG_FILE}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
-      server.use_template "#@templates/child"
+      server.based_on_template "#@templates/child"
     end
     prepare!
 
@@ -84,7 +84,7 @@ describe Preparer do
     given_file "#@templates/child/#{TemplateDir::CONFIG_FILE}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
-      server.use_template "#@templates/child"
+      server.based_on_template "#@templates/child"
     end
     prepare!
 
@@ -95,7 +95,7 @@ describe Preparer do
     given_file "#@templates/example/#{TemplateDir::CONFIG_FILE}", "{}"
 
     @config.server 'server1' do |server|
-      server.use_template "#@templates/example"
+      server.based_on_template "#@templates/example"
     end
     prepare!
 
@@ -106,7 +106,7 @@ describe Preparer do
     given_file "#@templates/example/.some-other-hidden-file"
 
     @config.server 'server1' do |server|
-      server.use_template "#@templates/example"
+      server.based_on_template "#@templates/example"
     end
     prepare!
 
@@ -118,7 +118,7 @@ describe Preparer do
 
   it "writes properties files to the server's output directory" do
     @config.server 'server1' do |server|
-      server.use_properties 'lib/config.properties', {'some.key' => 'some value'}
+      server.with_properties_file 'lib/config.properties', {'some.key' => 'some value'}
     end
     prepare!
 
@@ -133,7 +133,7 @@ describe Preparer do
 
     @config[:answer] = 42
     @config.server 'server1' do |server|
-      server.use_template "#@templates/example"
+      server.based_on_template "#@templates/example"
     end
     prepare!
 
@@ -147,7 +147,7 @@ describe Preparer do
 
     @config[:answer] = 42
     @config.server 'server1' do |server|
-      server.use_template "#@templates/example"
+      server.based_on_template "#@templates/example"
     end
     prepare!
 
@@ -168,8 +168,8 @@ describe Preparer do
     given_file "#@templates/basic-webapp/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
 
     @config.server 'server1' do |server|
-      server.use_template "#@templates/basic-webapp"
-      server.install_webapp 'com.example:sample:1.0:war'
+      server.based_on_template "#@templates/basic-webapp"
+      server.with_artifact :webapps, 'com.example:sample:1.0:war'
     end
     prepare!
 
@@ -181,8 +181,8 @@ describe Preparer do
     given_file "#@templates/child/#{TemplateDir::CONFIG_FILE}", "{ :parent => '../parent' }"
 
     @config.server 'server1' do |server|
-      server.use_template "#@templates/child"
-      server.install_webapp 'com.example:sample:1.0:war'
+      server.based_on_template "#@templates/child"
+      server.with_artifact :webapps, 'com.example:sample:1.0:war'
     end
     prepare!
 
@@ -193,8 +193,8 @@ describe Preparer do
     given_file "#@templates/basic-webapp/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
 
     @config.server 'server1' do |server|
-      server.use_template "#@templates/basic-webapp"
-      server.install_webapp 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
+      server.based_on_template "#@templates/basic-webapp"
+      server.with_artifact :webapps, 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
     end
     prepare!
 

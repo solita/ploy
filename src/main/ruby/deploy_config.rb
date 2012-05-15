@@ -53,20 +53,21 @@ class ServerConfig
     @webapps = {}
   end
 
-  def use_template(source_path)
+  def based_on_template(source_path)
     assert_type(:source_path, source_path, String)
     @template = TemplateDir.new(File.absolute_path(source_path))
   end
 
-  def use_properties(target_path, properties)
+  def with_properties_file(target_path, properties)
     assert_type(:target_path, target_path, String)
     assert_type(:properties, properties, Hash)
     @properties_files[target_path] = properties
   end
 
-  def install_webapp(webapp, jar_bundles = [])
+  def with_artifact(location_tag, webapp, jar_bundles = [])
     assert_type(:webapp, webapp, String)
     assert_type(:jar_bundles, jar_bundles, Array)
+    raise "for now, :webapps is the only supported location tag" if location_tag != :webapps
     @webapps[webapp] = jar_bundles
   end
 end

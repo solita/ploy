@@ -33,7 +33,7 @@ describe CLI do
     given_file "#@sandbox/templates/some-template/file-from-template.txt"
     config = given_file "#@sandbox/config.rb", <<-eos
       config.server 'server1' do |server|
-        server.use_template 'templates/some-template'
+        server.based_on_template 'templates/some-template'
       end
     eos
 
