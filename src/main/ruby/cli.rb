@@ -100,6 +100,9 @@ class CLI
 end
 
 class DummyListener # TODO
+  def task_started(hostname, task)
+  end
+
   def task_succeeded(hostname, task)
   end
 

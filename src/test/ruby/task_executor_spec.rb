@@ -181,8 +181,10 @@ describe TaskExecutor do
     end
 
     @listener = double("listener")
+    @listener.should_receive(:task_started).with('server1', :task1)
     @listener.should_receive(:task_succeeded).with('server1', :task1)
-    @listener.should_receive(:task_failed).with('server1', :task2, kind_of(RuntimeError)) # TODO: exception
+    @listener.should_receive(:task_started).with('server1', :task2)
+    @listener.should_receive(:task_failed).with('server1', :task2, kind_of(RuntimeError))
     @listener.should_receive(:task_skipped).with('server1', :task3)
 
     execute :no_such_task, :task1, :task2, :task3

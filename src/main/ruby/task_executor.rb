@@ -16,6 +16,7 @@ class TaskExecutor
         else
           begin
             unless task.nil?
+              @listener.task_started(server.hostname, task_id)
               task.call(server)
               @listener.task_succeeded(server.hostname, task_id)
             end
