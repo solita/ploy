@@ -1,11 +1,13 @@
 require_relative '../../main/ruby/cli'
 require_relative 'test_helpers'
+require_relative 'test_logger'
 
 describe CLI do
 
   before(:each) do
     @sandbox = Dir.mktmpdir()
     @output = "#@sandbox/target"
+    @logger = TestLogger.new
   end
 
   after(:each) do
@@ -13,7 +15,7 @@ describe CLI do
   end
 
   def run(*args)
-    CLI.new(args).run!
+    CLI.new(args, @logger).run!
   end
 
   it "can prepare a deployment configuration" do

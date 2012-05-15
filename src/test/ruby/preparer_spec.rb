@@ -1,5 +1,6 @@
 require_relative '../../main/ruby/preparer'
 require_relative 'test_helpers'
+require_relative 'test_logger'
 require 'tmpdir'
 
 describe Preparer do
@@ -8,6 +9,7 @@ describe Preparer do
     @sandbox = Dir.mktmpdir()
     @templates = given_dir "#@sandbox/templates"
     @output = given_dir "#@sandbox/target"
+    @logger = TestLogger.new
 
     @config = DeployConfig.new
     @config.maven_repository = "testdata/maven-repository"
@@ -19,7 +21,7 @@ describe Preparer do
 
 
   def prepare!
-    preparer = Preparer.new(@config, @output)
+    preparer = Preparer.new(@config, @output, @logger)
     preparer.logging = false
     preparer.build_all!
   end

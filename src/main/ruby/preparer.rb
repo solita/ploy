@@ -1,16 +1,19 @@
-require 'fileutils'
-require 'pathname'
+require_relative 'maven'
 require_relative 'template'
 require_relative 'template_dir'
-require_relative 'maven'
+require_relative 'zip'
+require 'fileutils'
+require 'pathname'
+require 'tmpdir'
 
 class Preparer
 
   attr_writer :logging
 
-  def initialize(config, output_dir)
+  def initialize(config, output_dir, logger)
     @config = config
     @output_dir = output_dir
+    @logger = logger
     @logging = true
   end
 
@@ -34,12 +37,6 @@ class Preparer
     output_dir
   end
 
-  def log_info(message)
-    if @logging
-      puts "[INFO] #{message}"
-    end
-  end
-
 
   # Templates
 
@@ -56,7 +53,7 @@ class Preparer
       copy_template(parent, output_dir)
     end
 
-    log_info "Copying template #{template} to #{output_dir}"
+    @logger.info "Copying template #{template} to #{output_dir}"
     template.filtered_files.each { |file| copy_filtered(file, get_target_file(template.base_dir, file, output_dir)) }
     template.non_filtered_files.each { |file| copy_as_is(file, get_target_file(template.base_dir, file, output_dir)) }
   end
@@ -118,7 +115,7 @@ class Preparer
       source_file = webapp.path(@config.maven_repository)
       target_file = File.join(output_dir, server.template.get_required(:webapps), webapp.simple_name)
 
-      log_info "Copying #{source_file} to #{target_file}"
+      @logger.info "Copying #{source_file} to #{target_file}"
       create_parent_dirs(target_file)
       FileUtils.cp(source_file, target_file)
 
@@ -131,11 +128,11 @@ class Preparer
   end
 
   def embed_into_zip(source_file, target_file, subdir)
-    log_info "Embedding #{source_file} into #{target_file}"
+    @logger.info "Embedding #{source_file} into #{target_file}"
     Dir.mktmpdir { |unpack_dir|
       Zip.new(source_file).unzip(unpack_dir)
 
-      list_files(unpack_dir).each { |file| log_info "    + #{file}" }
+      list_files(unpack_dir).each { |file| @logger.info "    + #{file}" }
       Zip.new(target_file).add(unpack_dir, subdir)
     }
   end

@@ -5,8 +5,9 @@ require 'optparse'
 
 class CLI
 
-  def initialize(args)
+  def initialize(args, logger)
     @args = args
+    @logger = logger
   end
 
   def run!()
@@ -17,7 +18,7 @@ class CLI
 
     config = DeployConfig.new
     prepare_task = proc do |server|
-      preparer = Preparer.new(config, output_dir)
+      preparer = Preparer.new(config, output_dir, @logger)
       preparer.build_server!(server)
     end
     config.default_tasks = {:prepare => prepare_task}
@@ -26,8 +27,7 @@ class CLI
       eval(IO.read(config_file), get_binding_for_config_file(config), config_file)
     end
 
-    listener = DummyListener.new # TODO
-    executor = TaskExecutor.new(config, listener)
+    executor = TaskExecutor.new(config, @logger)
     executor.execute(tasks)
   end
 
@@ -96,19 +96,5 @@ class CLI
   #noinspection RubyUnusedLocalVariable
   def get_binding_for_config_file(config)
     binding
-  end
-end
-
-class DummyListener # TODO
-  def task_started(hostname, task)
-  end
-
-  def task_succeeded(hostname, task)
-  end
-
-  def task_failed(hostname, task, exception)
-  end
-
-  def task_skipped(hostname, task)
   end
 end
