@@ -19,9 +19,9 @@ class ConsoleLogger
 
   def header(message)
     spacer
-    info "-" * 70
+    info "-" * 72
     info message
-    info "-" * 70
+    info "-" * 72
   end
 
   def spacer
