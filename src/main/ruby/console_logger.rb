@@ -33,7 +33,7 @@ class ConsoleLogger
   end
 
   def warn(message)
-    puts "[WARN] #{message}"
+    puts "[WARNING] #{message}"
   end
 
   def error(message, exception=nil)
