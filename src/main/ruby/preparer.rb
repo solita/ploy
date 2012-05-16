@@ -41,18 +41,19 @@ class Preparer
   def build_templates(server)
     template = server.template
     if template
-      copy_template(template, server.output_dir)
+      copy_template(template, server)
     end
   end
 
-  def copy_template(template, output_dir)
+  def copy_template(template, server)
     parent = template.parent
     if parent
-      copy_template(parent, output_dir)
+      copy_template(parent, server)
     end
 
+    output_dir = server.output_dir
     @logger.info "Copying template #{template} to #{output_dir}"
-    template.filtered_files.each { |file| copy_filtered(file, get_target_file(template.base_dir, file, output_dir)) }
+    template.filtered_files.each { |file| copy_filtered(server, file, get_target_file(template.base_dir, file, output_dir)) }
     template.non_filtered_files.each { |file| copy_as_is(file, get_target_file(template.base_dir, file, output_dir)) }
   end
 
@@ -66,17 +67,17 @@ class Preparer
     FileUtils.cp(source_file, target_file)
   end
 
-  def copy_filtered(source_file, target_file)
+  def copy_filtered(server, source_file, target_file)
     create_parent_dirs(target_file)
-    content = interpolate_template_file(source_file)
+    content = interpolate_template_file(server, source_file)
     File.open(target_file, 'wb') { |file|
       file.write(content)
     }
   end
 
-  def interpolate_template_file(template_file)
+  def interpolate_template_file(server, template_file)
     template = Template.new(IO.read(template_file))
-    template.interpolate(@config.template_replacements)
+    template.interpolate(server.variables)
   end
 
 

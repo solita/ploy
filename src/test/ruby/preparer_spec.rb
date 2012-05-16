@@ -157,6 +157,52 @@ describe Preparer do
       IO.read("#@output/server1/filtered.a").should == 'answer = 42'
       IO.read("#@output/server1/non-filtered.b").should == 'answer = <%= answer %>'
     end
+
+    it "server variables can be read through the server" do
+      server_variable = nil
+
+      @config.server 'server1' do |server|
+        server[:answer] = 42
+        server_variable = server[:answer]
+      end
+
+      server_variable.should == 42
+    end
+
+    it "common variables can be read through the server" do
+      server_variable = nil
+      @config[:answer] = 42
+
+      @config.server 'server1' do |server|
+        server_variable = server[:answer]
+      end
+
+      server_variable.should == 42
+    end
+
+    it "common variables cannot be modified through the server" do
+      @config[:answer] = 42
+
+      @config.server 'server1' do |server|
+        server[:answer] = 100
+      end
+
+      @config.variables[:answer].should == 42
+    end
+
+    it "server variables override the common variables" do
+      given_file "#@templates/example/#{TemplateDir::CONFIG_FILE}", "{ :filter => ['*.txt'] }"
+      given_file "#@templates/example/answer.txt", 'answer = <%= answer %>'
+
+      @config[:answer] = 42
+      @config.server 'server1' do |server|
+        server.based_on_template "#@templates/example"
+        server[:answer] = 100
+      end
+      prepare!
+
+      IO.read("#@output/server1/answer.txt").should == 'answer = 100'
+    end
   end
 
   describe "Maven artifacts" do

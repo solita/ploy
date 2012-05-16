@@ -8,7 +8,7 @@ end
 
 class DeployConfig
 
-  attr_reader :template_replacements,
+  attr_reader :variables,
               :servers
 
   attr_accessor :maven_repository,
@@ -16,7 +16,7 @@ class DeployConfig
 
   def initialize(output_dir)
     @output_dir = output_dir
-    @template_replacements = {}
+    @variables = {}
     @servers = []
     @maven_repository = File.join(Dir.home, '.m2/repository')
     @default_tasks = {}
@@ -24,7 +24,7 @@ class DeployConfig
 
   def []=(key, value)
     assert_type(:key, key, Symbol)
-    @template_replacements[key] = value
+    @variables[key] = value
   end
 
   def server(*hostnames)
@@ -32,7 +32,7 @@ class DeployConfig
       assert_type(:hostname, hostname, String)
 
       server_output_dir = File.join(@output_dir, hostname)
-      server_config = ServerConfig.new(hostname, server_output_dir, @default_tasks)
+      server_config = ServerConfig.new(hostname, server_output_dir, @variables, @default_tasks)
       yield server_config
       @servers << server_config
     }
@@ -43,18 +43,29 @@ class ServerConfig
 
   attr_reader :hostname,
               :output_dir,
+              :variables,
               :tasks,
               :template,
               :properties_files,
               :webapps
 
-  def initialize(hostname, output_dir, default_tasks)
+  def initialize(hostname, output_dir, shared_variables, default_tasks)
     @hostname = hostname
     @output_dir = output_dir
-    @tasks = {}.replace(default_tasks)
+    @variables = {}.merge(shared_variables)
+    @tasks = {}.merge(default_tasks)
     @template = nil
     @properties_files = {}
     @webapps = {}
+  end
+
+  def [](key)
+    @variables[key]
+  end
+
+  def []=(key, value)
+    assert_type(:key, key, Symbol)
+    @variables[key] = value
   end
 
   def based_on_template(source_path)
