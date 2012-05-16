@@ -8,7 +8,8 @@ end
 
 class DeployConfig
 
-  attr_reader :variables,
+  attr_reader :output_dir,
+              :variables,
               :servers
 
   attr_accessor :maven_repository,
@@ -31,8 +32,7 @@ class DeployConfig
     hostnames.each { |hostname|
       assert_type(:hostname, hostname, String)
 
-      server_output_dir = File.join(@output_dir, hostname)
-      server_config = ServerConfig.new(hostname, server_output_dir, @variables, @default_tasks)
+      server_config = ServerConfig.new(self, hostname)
       yield server_config
       @servers << server_config
     }
@@ -41,7 +41,8 @@ end
 
 class ServerConfig
 
-  attr_reader :hostname,
+  attr_reader :deploy_config,
+              :hostname,
               :output_dir,
               :variables,
               :tasks,
@@ -49,11 +50,12 @@ class ServerConfig
               :properties_files,
               :webapps
 
-  def initialize(hostname, output_dir, shared_variables, default_tasks)
+  def initialize(deploy_config, hostname)
+    @deploy_config = deploy_config
     @hostname = hostname
-    @output_dir = output_dir
-    @variables = {}.merge(shared_variables)
-    @tasks = {}.merge(default_tasks)
+    @output_dir = File.join(deploy_config.output_dir, hostname)
+    @variables = {}.merge(deploy_config.variables)
+    @tasks = {}.merge(deploy_config.default_tasks)
     @template = nil
     @properties_files = {}
     @webapps = {}
