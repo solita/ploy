@@ -76,8 +76,15 @@ class Preparer
   end
 
   def interpolate_template_file(server, template_file)
-    template = Template.new(IO.read(template_file))
-    template.interpolate(server.variables)
+    variables = server.variables
+    begin
+      template = Template.new(IO.read(template_file))
+      template.interpolate(variables)
+    rescue
+      cause = $!
+      @logger.error "Failed to interpolate template #{template_file} using variables #{variables}: #{cause}"
+      raise cause
+    end
   end
 
 
