@@ -46,12 +46,20 @@ class Summary
   end
 
   def summary_table
-    table = ""
-    table << @tasks.join(' ') + "\n"
+    rows = []
+    rows << [''] + @tasks.map { |task| task.to_s }
     @servers.each do |server|
-      table << server + " "
-      @tasks.each do |task|
-        table << get_result(server, task) + " "
+      rows << [server] + @tasks.map { |task| get_result(server, task) }
+    end
+
+    columns = rows.transpose
+    column_widths = columns.map { |column| column.map { |cell| cell.length }.max }
+    spacing = '  '
+
+    table = ""
+    rows.each do |row|
+      row.each_index do |i|
+        table << row[i].ljust(column_widths[i], ' ') + spacing
       end
       table << "\n"
     end

@@ -18,7 +18,7 @@ describe Summary do
 
     it "fails if one or more tasks fail" do
       @summary.task_started('server1', :task1)
-      @summary.task_failed('server1', :task1, Exception.new('failure'))
+      @summary.task_failed('server1', :task1, Exception.new)
       @summary.task_started('server2', :task1)
       @summary.task_succeeded('server2', :task1)
 
@@ -61,7 +61,7 @@ describe Summary do
 
     it "shows failed tasks per server" do
       @summary.task_started('server1', :task1)
-      @summary.task_failed('server1', :task1, Exception.new('failure'))
+      @summary.task_failed('server1', :task1, Exception.new)
 
       @summary.summary_table.should =~ /FAILED/
     end
@@ -106,6 +106,18 @@ describe Summary do
       rows = @summary.summary_table.lines.to_a
       rows[1].should =~ /server1/
       rows[2].should =~ /server2/
+    end
+
+    it "all columns are aligned, even when some names and statuses are longer than others" do
+      @summary.task_started('shortname', :task)
+      @summary.task_succeeded('shortname', :task)
+      @summary.task_started('very_long_name', :task)
+      @summary.task_failed('very_long_name', :task, Exception.new)
+
+      rows = @summary.summary_table.lines.map { |s| s.rstrip }
+      rows[0].should == "                task"
+      rows[1].should == "shortname       OK"
+      rows[2].should == "very_long_name  FAILED"
     end
   end
 end
