@@ -5,8 +5,9 @@ require 'optparse'
 
 class CLI
 
-  def initialize(args, logger)
+  def initialize(args, task_listener, logger)
     @args = args
+    @task_listener = task_listener
     @logger = logger
   end
 
@@ -25,7 +26,7 @@ class CLI
       eval(IO.read(config_file), get_binding_for_config_file(config), config_file)
     end
 
-    executor = TaskExecutor.new(config, @logger)
+    executor = TaskExecutor.new(config, @task_listener)
     executor.execute(tasks)
   end
 

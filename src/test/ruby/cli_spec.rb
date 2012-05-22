@@ -15,7 +15,7 @@ describe CLI do
   end
 
   def run(*args)
-    CLI.new(args, @logger).run!
+    CLI.new(args, @logger, @logger).run!
   end
 
   it "can prepare a deployment configuration" do

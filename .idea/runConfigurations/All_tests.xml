@@ -25,9 +25,11 @@
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="DRB" VALUE="false" />
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="FULL_BACKTRACE" VALUE="false" />
     <RunnerSettings RunnerId="Cover" />
+    <RunnerSettings RunnerId="RubyCover" />
     <RunnerSettings RunnerId="RubyDebugRunner" />
     <RunnerSettings RunnerId="Run" />
     <ConfigurationWrapper RunnerId="Cover" />
+    <ConfigurationWrapper RunnerId="RubyCover" />
     <ConfigurationWrapper RunnerId="RubyDebugRunner" />
     <ConfigurationWrapper RunnerId="Run" />
     <method>
