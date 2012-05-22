@@ -30,9 +30,64 @@ describe Summary do
     end
   end
 
-  describe "summary table" do
+  describe "summary table content" do
 
-    it "all tasks are in columns" do
+    it "task is named exactly once, regardless of how many servers had it" do
+      @summary.task_started('server1', :task1)
+      @summary.task_succeeded('server1', :task1)
+      @summary.task_started('server2', :task1)
+      @summary.task_succeeded('server2', :task1)
+
+      @summary.summary_table.should =~ /task1/m
+      @summary.summary_table.should_not =~ /task1.*task1/m
+    end
+
+    it "server is named exactly once, regardless of how many tasks it had" do
+      @summary.task_started('server1', :task1)
+      @summary.task_succeeded('server1', :task1)
+      @summary.task_started('server1', :task2)
+      @summary.task_succeeded('server1', :task2)
+
+      @summary.summary_table.should =~ /server1/m
+      @summary.summary_table.should_not =~ /server1.*server1/m
+    end
+
+    it "shows succeeded tasks per server" do
+      @summary.task_started('server1', :task1)
+      @summary.task_succeeded('server1', :task1)
+
+      @summary.summary_table.should =~ /OK/
+    end
+
+    it "shows failed tasks per server" do
+      @summary.task_started('server1', :task1)
+      @summary.task_failed('server1', :task1, Exception.new('failure'))
+
+      @summary.summary_table.should =~ /FAILED/
+    end
+
+    it "shows skipped tasks per server" do
+      @summary.task_skipped('server1', :task1)
+
+      @summary.summary_table.should =~ /SKIPPED/
+    end
+
+    it "shows missing tasks per server" do
+      @summary.task_started('server1', :task1)
+      @summary.task_succeeded('server1', :task1)
+      @summary.task_started('server2', :task2)
+      @summary.task_succeeded('server2', :task2)
+
+      rows = @summary.summary_table.lines.to_a
+      rows[0].should =~ /task1.+task2/
+      rows[1].should =~ /server1.+OK.+-/
+      rows[2].should =~ /server2.+-.+OK/
+    end
+  end
+
+  describe "summary table layout" do
+
+    it "columns represent tasks" do
       @summary.task_started('any server', :task1)
       @summary.task_succeeded('any server', :task1)
       @summary.task_started('any server', :task2)
@@ -42,16 +97,7 @@ describe Summary do
       rows[0].should =~ /task1.+task2/
     end
 
-    it "each task is listed only once" do
-      @summary.task_started('server1', :task1)
-      @summary.task_succeeded('server1', :task1)
-      @summary.task_started('server2', :task1)
-      @summary.task_succeeded('server2', :task1)
-
-      @summary.summary_table.should_not =~ /task1.*task1/m
-    end
-
-    it "all servers are in rows" do
+    it "rows represent servers" do
       @summary.task_started('server1', :any_task)
       @summary.task_succeeded('server1', :any_task)
       @summary.task_started('server2', :any_task)
@@ -61,49 +107,5 @@ describe Summary do
       rows[1].should =~ /server1/
       rows[2].should =~ /server2/
     end
-
-    it "each server is listed only once" do
-      @summary.task_started('server1', :task1)
-      @summary.task_succeeded('server1', :task1)
-      @summary.task_started('server1', :task2)
-      @summary.task_succeeded('server1', :task2)
-
-      @summary.summary_table.should_not =~ /server1.*server1/m
-    end
-
-    it "shows succeeded tasks" do
-      @summary.task_started('server1', :task1)
-      @summary.task_succeeded('server1', :task1)
-
-      @summary.summary_table.should =~ /OK/
-    end
-
-    it "shows failed tasks" do
-      @summary.task_started('server1', :task1)
-      @summary.task_failed('server1', :task1, Exception.new('failure'))
-
-      @summary.summary_table.should =~ /FAILED/
-    end
-
-    it "shows skipped tasks" do
-      @summary.task_skipped('server1', :task1)
-
-      @summary.summary_table.should =~ /SKIPPED/
-    end
-
-    it "shows missing tasks" do
-      @summary.task_started('server1', :task1)
-      @summary.task_succeeded('server1', :task1)
-      @summary.task_started('server2', :task2)
-      @summary.task_succeeded('server2', :task2)
-
-
-      rows = @summary.summary_table.lines.to_a
-      rows[0].should =~ /task1.+task2/
-      rows[1].should =~ /server1.+OK.+-/
-      rows[2].should =~ /server2.+-.+OK/
-    end
-
-    # TODO: alignment
   end
 end
