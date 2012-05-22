@@ -15,12 +15,10 @@ class CLI
     config_file = options[:config_file]
     output_dir = options[:output_dir]
     tasks = options[:tasks]
+    maven_repository = options[:maven_repository]
 
     config = DeployConfig.new(output_dir)
-    prepare_task = proc do |server|
-      preparer = Preparer.new(config, @logger)
-      preparer.build_server!(server)
-    end
+    config.maven_repository = maven_repository if maven_repository
     config.default_tasks = {:prepare => prepare_task}
 
     Dir.chdir(File.dirname(config_file)) do
@@ -32,6 +30,13 @@ class CLI
   end
 
   private
+
+  def prepare_task
+    proc do |server|
+      preparer = Preparer.new(server.deploy_config, @logger)
+      preparer.build_server!(server)
+    end
+  end
 
   def parse_options(args)
     options = {:tasks => []}

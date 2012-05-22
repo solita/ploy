@@ -55,4 +55,29 @@ describe CLI do
 
     "#@output/server1/result.txt".should be_a_file
   end
+
+  it "the Maven repository can be configured on command line" do
+    config = given_file "#@sandbox/config.rb", <<-eos
+      File.open("#@sandbox/maven_repository.txt", 'w') do |file|
+        file.write config.maven_repository
+      end
+    eos
+
+    maven_repository_path = given_dir "#@sandbox/custom_maven_repository"
+    run "dummytask", "--config-file", config, "--output-dir", @output, "--maven-repository", maven_repository_path
+
+    IO.read("#@sandbox/maven_repository.txt").should == maven_repository_path
+  end
+
+  it "by default the local Maven repository's default location is used" do
+    config = given_file "#@sandbox/config.rb", <<-eos
+      File.open("#@sandbox/maven_repository.txt", 'w') do |file|
+        file.write config.maven_repository
+      end
+    eos
+
+    run "dummytask", "--config-file", config, "--output-dir", @output
+
+    IO.read("#@sandbox/maven_repository.txt").should == File.join(Dir.home, ".m2/repository")
+  end
 end
