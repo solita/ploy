@@ -23,10 +23,12 @@ describe Summary do
       @summary.task_succeeded('server2', :task1)
 
       @summary.exit_status.should_not == 0
+      @summary.summary_table.should =~ /failed tasks/i
     end
 
     it "fails if no tasks were executed" do
       @summary.exit_status.should_not == 0
+      @summary.summary_table.should =~ /no tasks/i
     end
   end
 

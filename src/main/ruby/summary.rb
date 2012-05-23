@@ -11,7 +11,6 @@ class Summary
     record(server, task, :STARTED)
   end
 
-
   def task_succeeded(server, task)
     record(server, task, :OK)
   end
@@ -40,8 +39,16 @@ class Summary
     end
   end
 
+  def failed_tasks?
+    @has_failures
+  end
+
+  def no_tasks?
+    @tasks.empty?
+  end
+
   def exit_status
-    failed = @has_failures || @tasks.empty?
+    failed = failed_tasks?() || no_tasks?()
     failed ? 1 : 0
   end
 
@@ -62,6 +69,13 @@ class Summary
         table << row[i].ljust(column_widths[i], ' ') + spacing
       end
       table << "\n"
+    end
+
+    if failed_tasks?
+      table << "There were some failed tasks.\n"
+    end
+    if no_tasks?
+      table << "No tasks were executed. Maybe the task name was misspelt?\n"
     end
     table
   end
