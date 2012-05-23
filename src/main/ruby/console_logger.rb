@@ -1,20 +1,20 @@
 class ConsoleLogger
 
-  def task_started(hostname, task)
-    header "Executing task #{task}/#{hostname}"
+  def task_started(server, task)
+    header "Executing task #{server}:#{task}"
   end
 
-  def task_succeeded(hostname, task)
-    info "Succeeded in task #{task}/#{hostname}"
+  def task_succeeded(server, task)
+    info "Succeeded in task #{server}:#{task}"
   end
 
-  def task_failed(hostname, task, exception)
-    error "Failed to execute task #{task}/#{hostname}", exception
+  def task_failed(server, task, exception)
+    error "Failed to execute task #{server}:#{task}", exception
   end
 
-  def task_skipped(hostname, task)
+  def task_skipped(server, task)
     spacer
-    warn "Skipped task #{task}/#{hostname}"
+    warn "Skipped task #{server}:#{task}"
   end
 
   def header(message)
