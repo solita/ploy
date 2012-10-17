@@ -8,11 +8,27 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <description>
+        Command line tool for automating software deployments on multiple machines.
+    </description>
+    <url>https://github.com/solita</url>
+    <inceptionYear>2012</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <minimumMavenVersion>3.0.0</minimumMavenVersion>
     </properties>
+
+    <prerequisites>
+        <maven>3.0.0</maven>
+    </prerequisites>
 
     <dependencies>
 
