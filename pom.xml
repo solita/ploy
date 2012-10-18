@@ -11,7 +11,7 @@
     <description>
         Command line tool for automating software deployments on multiple machines.
     </description>
-    <url>https://github.com/solita</url>
+    <url>https://github.com/solita/deployer</url>
     <inceptionYear>2012</inceptionYear>
 
     <licenses>
