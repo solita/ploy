@@ -1,8 +1,7 @@
-# This configuration file is Ruby code, so we can use variables for things that change often
+# This configuration file is Ruby code, so we can use for example local variables
 sample_version = '1.0'
 
 # We can use replacement variables to fill in values in the templates
-# TODO: create template files, use the variables
 config[:some_variable] = 'foo'
 config[:another_variable] = 'bar'
 
@@ -38,9 +37,9 @@ config.server 'server1', 'server2' do |server|
   server.tasks[:deploy] = proc do
     # Here you can execute any code you wish
     puts "Running the deploy task for #{server.hostname}"
+    puts "We can get the prepared configuration files from #{server.output_dir}"
   end
 
   # We can use also server specific replacement variables
-  # TODO: create template files, use the variables
   server[:tomcat_home] = "/opt/tomcat"
 end

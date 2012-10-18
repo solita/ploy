@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <!-- We can use Ruby ERB for filling in replacement variables -->
+    <someVariable><%= some_variable %></someVariable>
+</config>
