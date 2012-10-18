@@ -33,9 +33,11 @@ config.server 'server1', 'server2' do |server|
   server.with_artifact :webapps, "com.example:sample:#{sample_version}:war", ["com.example:extralibs:#{sample_version}:zip:bundle"]
 
   # You can have multiple tasks, each identified by a unique name (here :deploy).
-  # The closure defined here can contain any code necessary to deploy your application.
+  # There is also a built-in :prepare task which processes the template files and
+  # writes them to the output directory. The order in which the tasks are executed
+  # is defined on the command line.
   server.tasks[:deploy] = proc do
-    # Here you can execute any code you wish
+    # This closure can contain any code necessary to deploy your application
     puts "Running the deploy task for #{server.hostname}"
     puts "We can get the prepared configuration files from #{server.output_dir}"
   end
