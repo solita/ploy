@@ -14,6 +14,6 @@ Run the example using the commands:
     cd example
     ./run.sh
 
-Requires Maven 3 and Java 6 or higher. Includes JRuby in Ruby 1.9 mode.
+Requires Maven 3 and Java 7 or higher. Includes JRuby in Ruby 1.9 mode.
 
 Licensed under the MIT license.
