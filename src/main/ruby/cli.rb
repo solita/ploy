@@ -42,7 +42,7 @@ class CLI
   def parse_options(args)
     options = {:tasks => []}
     op = OptionParser.new do |opts|
-      opts.banner = "Usage: deployer [OPTION]... TASK..."
+      opts.banner = "Usage: ploy [OPTION]... TASK..."
       opts.separator "Runs the TASKs of the deployment configuration, in the specified order."
       opts.separator "The built-in task 'prepare' generates files from templates to the output directory."
 

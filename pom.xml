@@ -3,15 +3,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>fi.solita.deployer</groupId>
-    <artifactId>deployer</artifactId>
+    <groupId>fi.solita.ploy</groupId>
+    <artifactId>ploy</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <description>
-        Command line tool for automating software deployments on multiple machines.
-    </description>
-    <url>https://github.com/solita/deployer</url>
+    <name>Ploy</name>
+    <description>Deployment Automation Tool</description>
+    <url>https://github.com/solita/ploy</url>
     <inceptionYear>2012</inceptionYear>
 
     <licenses>
@@ -82,7 +81,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>fi.solita.deployer.Main</mainClass>
+                            <mainClass>fi.solita.ploy.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
