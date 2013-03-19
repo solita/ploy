@@ -116,7 +116,7 @@ describe Preparer do
     it "copied files retain their permission bits" do
       original = "#@templates/example/custom-perm.txt"
       given_file original
-      File.chmod([0444, 0644, 0755].shuffle.first, original)
+      File.chmod(0755, original)
 
       @config.server 'server1' do |server|
         server.based_on_template "#@templates/example"

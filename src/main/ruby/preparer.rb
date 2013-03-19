@@ -64,7 +64,7 @@ class Preparer
 
   def copy_as_is(source_file, target_file)
     create_parent_dirs(target_file)
-    FileUtils.cp(source_file, target_file)
+    FileUtils.cp(source_file, target_file, :preserve => true)
   end
 
   def copy_filtered(server, source_file, target_file)
@@ -123,13 +123,14 @@ class Preparer
 
       @logger.info "Copying #{source_file} to #{target_file}"
       create_parent_dirs(target_file)
-      FileUtils.cp(source_file, target_file)
+      FileUtils.cp(source_file, target_file, :preserve => true)
 
       jar_bundles.each { |jar_bundle|
         jar_bundle = MavenArtifact.new(jar_bundle)
         bundle_file = jar_bundle.path(@config.maven_repository)
         embed_into_zip(bundle_file, target_file, 'WEB-INF/lib')
       }
+      File.chmod(File.stat(source_file).mode, target_file)
     }
   end
 
