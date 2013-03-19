@@ -112,6 +112,21 @@ describe Preparer do
 
       "#@output/server1/.hidden-file".should be_a_file
     end
+
+    it "copied files retain their permission bits" do
+      original = "#@templates/example/custom-perm.txt"
+      given_file original
+      File.chmod([0444, 0644, 0755].shuffle.first, original)
+
+      @config.server 'server1' do |server|
+        server.based_on_template "#@templates/example"
+      end
+      prepare!
+
+      copied = "#@output/server1/custom-perm.txt"
+      copied.should be_a_file
+      sprintf('%o', File.stat(copied).mode).should == sprintf('%o', File.stat(original).mode)
+    end
   end
 
   describe "Dynamically created files" do
@@ -248,6 +263,21 @@ describe Preparer do
       prepare!
 
       Zip.new("#@output/server1/webapps/sample.war").list.should include('WEB-INF/lib/extralibs-library.jar')
+    end
+
+    it "repacked WAR files retain their permission bits" do
+      given_file "#@templates/basic-webapp/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
+      original = "testdata/maven-repository/com/example/sample/1.0/sample-1.0.war"
+
+      @config.server 'server1' do |server|
+        server.based_on_template "#@templates/basic-webapp"
+        server.with_artifact :webapps, 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
+      end
+      prepare!
+
+      repacked = "#@output/server1/webapps/sample.war"
+      repacked.should be_a_file
+      sprintf('%o', File.stat(repacked).mode).should == sprintf('%o', File.stat(original).mode)
     end
   end
 end
