@@ -13,7 +13,7 @@ set -x
 git reset
 
 mvn versions:set --batch-mode --errors -DgenerateBackupPoms=false -DnewVersion="$RELEASE_VERSION"
-git add pom.xml
+git add pom.xml README.md
 git commit -m "Release $RELEASE_VERSION"
 git tag -s -m "Release $RELEASE_VERSION" "v$RELEASE_VERSION"
 
