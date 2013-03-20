@@ -73,6 +73,7 @@ class Preparer
     File.open(target_file, 'wb') { |file|
       file.write(content)
     }
+    File.chmod(File.stat(source_file).mode, target_file)
   end
 
   def interpolate_template_file(server, template_file)
