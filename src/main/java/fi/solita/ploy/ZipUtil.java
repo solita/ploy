@@ -9,7 +9,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
-import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.*;
 
 public class ZipUtil {
 
@@ -81,7 +81,7 @@ public class ZipUtil {
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Path targetFile = targetDir.resolve(sourceDir.relativize(file).toString());
             Files.createDirectories(targetFile.getParent());
-            Files.copy(file, targetFile, COPY_ATTRIBUTES);
+            Files.copy(file, targetFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
             return FileVisitResult.CONTINUE;
         }
     }
