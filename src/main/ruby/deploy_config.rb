@@ -57,8 +57,8 @@ class ServerConfig
     @variables = {}.merge(deploy_config.variables)
     @tasks = {}.merge(deploy_config.default_tasks)
     @template = nil
-    @files = {}
-    @webapps = {}
+    @files = []
+    @webapps = []
   end
 
   def [](key)
@@ -78,7 +78,7 @@ class ServerConfig
   def with_file(target_path, content)
     assert_type(:target_path, target_path, String)
     assert_type(:content, content, String)
-    @files[target_path] = content
+    @files << [target_path, content]
   end
 
   def with_properties_file(target_path, properties)
@@ -91,6 +91,6 @@ class ServerConfig
     assert_type(:target_dir, target_dir, String)
     assert_type(:war_artifact, war_artifact, String)
     assert_type(:jar_bundles, jar_bundles, Array)
-    @webapps[target_dir] = [war_artifact, jar_bundles]
+    @webapps << [target_dir, war_artifact, jar_bundles]
   end
 end

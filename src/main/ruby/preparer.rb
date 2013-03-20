@@ -113,10 +113,7 @@ class Preparer
   # Webapps
 
   def build_webapps(server)
-    server.webapps.each { |target_dir, entry|
-      war_artifact = entry[0]
-      jar_bundles = entry[1]
-
+    server.webapps.each { |target_dir, war_artifact, jar_bundles|
       webapp = MavenArtifact.new(war_artifact)
       source_file = webapp.path(@config.maven_repository)
       target_file = File.join(server.output_dir, target_dir, webapp.simple_name)
