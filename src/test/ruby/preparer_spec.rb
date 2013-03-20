@@ -244,25 +244,9 @@ describe Preparer do
       config.maven_repository.should == "#{Dir.home}/.m2/repository"
     end
 
-    it "copies WARs from the local Maven repository to the webapps directory" do
-      given_file "#@templates/basic-webapp/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
-
+    it "copies WARs from the local Maven repository to the specified directory" do
       @config.server 'server1' do |server|
-        server.based_on_template "#@templates/basic-webapp"
-        server.with_artifact :webapps, 'com.example:sample:1.0:war'
-      end
-      prepare!
-
-      "#@output/server1/webapps/sample.war".should be_a_file
-    end
-
-    it "the webapps directory may be specified in a parent template" do
-      given_file "#@templates/parent/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
-      given_file "#@templates/child/#{TemplateDir::CONFIG_FILE}", "{ :parent => '../parent' }"
-
-      @config.server 'server1' do |server|
-        server.based_on_template "#@templates/child"
-        server.with_artifact :webapps, 'com.example:sample:1.0:war'
+        server.with_webapp 'webapps', 'com.example:sample:1.0:war'
       end
       prepare!
 
@@ -270,11 +254,8 @@ describe Preparer do
     end
 
     it "embeds JARs files from ZIP bundles inside WAR files" do
-      given_file "#@templates/basic-webapp/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
-
       @config.server 'server1' do |server|
-        server.based_on_template "#@templates/basic-webapp"
-        server.with_artifact :webapps, 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
+        server.with_webapp 'webapps', 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
       end
       prepare!
 
@@ -282,12 +263,10 @@ describe Preparer do
     end
 
     it "repacked WAR files retain their permission bits" do
-      given_file "#@templates/basic-webapp/#{TemplateDir::CONFIG_FILE}", "{ :webapps => 'webapps' }"
       original = "testdata/maven-repository/com/example/sample/1.0/sample-1.0.war"
 
       @config.server 'server1' do |server|
-        server.based_on_template "#@templates/basic-webapp"
-        server.with_artifact :webapps, 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
+        server.with_webapp 'webapps', 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
       end
       prepare!
 

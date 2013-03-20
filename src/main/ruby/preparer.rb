@@ -117,10 +117,13 @@ class Preparer
   # Webapps
 
   def build_webapps(server)
-    server.webapps.each { |webapp, jar_bundles|
-      webapp = MavenArtifact.new(webapp)
+    server.webapps.each { |target_dir, entry|
+      war_artifact = entry[0]
+      jar_bundles = entry[1]
+
+      webapp = MavenArtifact.new(war_artifact)
       source_file = webapp.path(@config.maven_repository)
-      target_file = File.join(server.output_dir, server.template.get_required(:webapps), webapp.simple_name)
+      target_file = File.join(server.output_dir, target_dir, webapp.simple_name)
 
       @logger.info "Copying #{source_file} to #{target_file}"
       create_parent_dirs(target_file)

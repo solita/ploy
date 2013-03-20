@@ -22,15 +22,13 @@ config.server 'server1', 'server2' do |server|
   }
 
   # These is special support for WAR files.
-  # - The first parameter is a tag name for the template directory where the artifacts
-  #   will be copied to (for now only :webapps is supported). See actual directory
-  #   corresponding the tag is defined in the .template.rb file.
+  # - The first parameter is the path to the directory where to copy the WAR file.
   # - The second parameter is a Maven artifact descriptor for the WAR file. It will be
   #   copied from the local Maven repository.
   # - (optional) The third parameter is an array of Maven artifact descriptors of ZIP
   #   files which will be unpacked and their contents copied inside the WAR's
   #   /WEB-INF/lib directory.
-  server.with_artifact :webapps, "com.example:sample:#{sample_version}:war", ["com.example:extralibs:#{sample_version}:zip:bundle"]
+  server.with_webapp 'webapps-dir', "com.example:sample:#{sample_version}:war", ["com.example:extralibs:#{sample_version}:zip:bundle"]
 
   # You can have multiple tasks, each identified by a unique name (here :deploy).
   # There is also a built-in :prepare task which processes the template files and

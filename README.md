@@ -24,9 +24,10 @@ Release Notes
 
 **Next Release**
 
-- Renamed the project to Ploy ([#9](https://github.com/solita/ploy/issues/9))
+- Created `with_webapp` that takes the path to the webapps directory as parameter. This replaces the old way of using `with_artifact` and specifying the webapps directory in `.template.rb` ([#7](https://github.com/solita/ploy/issues/7))
 - Retains the permission bits of files generated based on templates ([#2](https://github.com/solita/ploy/issues/2))
 - Better compatibility: doesn't anymore use the `jar` command for handling ZIP files, but uses Java's standard library
+- Renamed the project to Ploy ([#9](https://github.com/solita/ploy/issues/9))
 - Upgraded to Java 7
 - Upgraded to JRuby 1.7 ([#5](https://github.com/solita/ploy/issues/5))
 

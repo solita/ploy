@@ -81,10 +81,10 @@ class ServerConfig
     @properties_files[target_path] = properties
   end
 
-  def with_artifact(location_tag, webapp, jar_bundles = [])
-    assert_type(:webapp, webapp, String)
+  def with_webapp(target_dir, war_artifact, jar_bundles = [])
+    assert_type(:target_dir, target_dir, String)
+    assert_type(:war_artifact, war_artifact, String)
     assert_type(:jar_bundles, jar_bundles, Array)
-    raise "for now, :webapps is the only supported location tag" if location_tag != :webapps
-    @webapps[webapp] = jar_bundles
+    @webapps[target_dir] = [war_artifact, jar_bundles]
   end
 end
