@@ -3,6 +3,10 @@ require_relative 'test_helpers'
 require_relative 'test_logger'
 require 'tmpdir'
 
+def permission_bits(file)
+  sprintf('%o', File.stat(file).mode)
+end
+
 describe Preparer do
 
   before(:each) do
@@ -123,9 +127,7 @@ describe Preparer do
       end
       prepare!
 
-      copied = "#@output/server1/custom-perm.txt"
-      copied.should be_a_file
-      sprintf('%o', File.stat(copied).mode).should == sprintf('%o', File.stat(original).mode)
+      permission_bits("#@output/server1/custom-perm.txt").should == permission_bits(original)
     end
   end
 
@@ -218,6 +220,20 @@ describe Preparer do
 
       IO.read("#@output/server1/answer.txt").should == 'answer = 100'
     end
+
+    it "interpolated files retain their permission bits" do
+      given_file "#@templates/example/#{TemplateDir::CONFIG_FILE}", "{ :filter => ['*.sh'] }"
+      original = "#@templates/example/script.sh"
+      given_file original, "unimportant content"
+      File.chmod(0755, original)
+
+      @config.server 'server1' do |server|
+        server.based_on_template "#@templates/example"
+      end
+      prepare!
+
+      permission_bits("#@output/server1/script.sh").should == permission_bits(original)
+    end
   end
 
   describe "Maven artifacts" do
@@ -275,9 +291,7 @@ describe Preparer do
       end
       prepare!
 
-      repacked = "#@output/server1/webapps/sample.war"
-      repacked.should be_a_file
-      sprintf('%o', File.stat(repacked).mode).should == sprintf('%o', File.stat(original).mode)
+      permission_bits("#@output/server1/webapps/sample.war").should == permission_bits(original)
     end
   end
 end
