@@ -133,6 +133,17 @@ describe Preparer do
 
   describe "Dynamically created files" do
 
+    it "can generate arbitrary files from strings" do
+      @config.server 'server1' do |server|
+        server.with_file 'file.txt', 'file content'
+      end
+      prepare!
+
+      text_file = "#@output/server1/file.txt"
+      text_file.should be_a_file
+      IO.read(text_file).should == 'file content'
+    end
+
     it "can generate properties files from hashes" do
       @config.server 'server1' do |server|
         server.with_properties_file 'lib/config.properties', {'some.key' => 'some value'}

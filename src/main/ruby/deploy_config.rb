@@ -47,7 +47,7 @@ class ServerConfig
               :variables,
               :tasks,
               :template,
-              :properties_files,
+              :files,
               :webapps
 
   def initialize(deploy_config, hostname)
@@ -57,7 +57,7 @@ class ServerConfig
     @variables = {}.merge(deploy_config.variables)
     @tasks = {}.merge(deploy_config.default_tasks)
     @template = nil
-    @properties_files = {}
+    @files = {}
     @webapps = {}
   end
 
@@ -75,10 +75,16 @@ class ServerConfig
     @template = TemplateDir.new(File.absolute_path(source_path))
   end
 
+  def with_file(target_path, content)
+    assert_type(:target_path, target_path, String)
+    assert_type(:content, content, String)
+    @files[target_path] = content
+  end
+
   def with_properties_file(target_path, properties)
     assert_type(:target_path, target_path, String)
     assert_type(:properties, properties, Hash)
-    @properties_files[target_path] = properties
+    with_file(target_path, properties.map { |key, value| "#{key}=#{value}\n" }.join)
   end
 
   def with_webapp(target_dir, war_artifact, jar_bundles = [])

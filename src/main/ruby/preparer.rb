@@ -23,7 +23,7 @@ class Preparer
   def build_server!(server)
     create_output_dir(server)
     build_templates(server)
-    build_properties_files(server)
+    build_files(server)
     build_webapps(server)
   end
 
@@ -91,21 +91,17 @@ class Preparer
 
   # Properties files
 
-  def build_properties_files(server)
-    server.properties_files.each { |relative_path, properties|
+  def build_files(server)
+    server.files.each { |relative_path, content|
       output_file = File.join(server.output_dir, relative_path)
-      write_properties_file(properties, output_file)
+      write_file(output_file, content)
     }
   end
 
-
-  def write_properties_file(properties, output_file)
+  def write_file(output_file, content)
     create_parent_dirs(output_file)
-
-    File.open(output_file, 'w') { |f|
-      properties.each { |key, value|
-        f.puts "#{key}=#{value}"
-      }
+    File.open(output_file, 'wb') { |f|
+      f.write content
     }
   end
 
