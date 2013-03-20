@@ -17,3 +17,19 @@ Run the example using the commands:
 Requires Maven 3 and Java 7 or higher. Includes JRuby in Ruby 1.9 mode.
 
 Licensed under the MIT license.
+
+
+Release Notes
+-------------
+
+**Next Release**
+
+- Renamed the project to Ploy ([#9](https://github.com/solita/ploy/issues/9))
+- Retains the permission bits of files generated based on templates ([#2](https://github.com/solita/ploy/issues/2))
+- Better compatibility: doesn't anymore use the `jar` command for handling ZIP files, but uses Java's standard library
+- Upgraded to Java 7
+- Upgraded to JRuby 1.7 ([#5](https://github.com/solita/ploy/issues/5))
+
+**v1.0.0** (2012-10-18)
+
+- Initial release
