@@ -22,7 +22,7 @@ Licensed under the MIT license.
 Release Notes
 -------------
 
-**Next Release**
+**v1.2.0** (2013-08-13)
 
 - Can locate Maven 3's unique timestamped snapshots
 
