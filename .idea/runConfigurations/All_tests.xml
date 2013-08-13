@@ -28,10 +28,12 @@
     <RunnerSettings RunnerId="Cover" />
     <RunnerSettings RunnerId="RubyCover" />
     <RunnerSettings RunnerId="RubyDebugRunner" />
+    <RunnerSettings RunnerId="RubyRunner" />
     <RunnerSettings RunnerId="Run" />
     <ConfigurationWrapper RunnerId="Cover" />
     <ConfigurationWrapper RunnerId="RubyCover" />
     <ConfigurationWrapper RunnerId="RubyDebugRunner" />
+    <ConfigurationWrapper RunnerId="RubyRunner" />
     <ConfigurationWrapper RunnerId="Run" />
     <method />
   </configuration>
