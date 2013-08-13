@@ -3,6 +3,10 @@ require_relative 'test_helpers'
 
 describe MavenArtifact do
 
+  before(:each) do
+    @maven_repository = "testdata/maven-repository"
+  end
+
   it "decomposes an artifact string to its elements" do
     artifact = MavenArtifact.new("com.example.group-id:the-artifact:4.2:zip:the-classifier")
 
@@ -35,6 +39,12 @@ describe MavenArtifact do
     artifact = MavenArtifact.new("com.example.group-id:the-artifact:4.2:jar")
 
     artifact.path.should == "com/example/group-id/the-artifact/4.2/the-artifact-4.2.jar"
+  end
+
+  it "finds snapshot artifact, when using unique timestamped snapshots" do
+    artifact = MavenArtifact.new("com.example:sample:1.0-SNAPSHOT:zip:bundle")
+
+    artifact.path(@maven_repository).should == "#{@maven_repository}/com/example/sample/1.0-SNAPSHOT/sample-1.0-20130813.114148-1-bundle.zip"
   end
 
   it "returns artifact's full path if the repository's path is provided" do

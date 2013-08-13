@@ -22,6 +22,10 @@ Licensed under the MIT license.
 Release Notes
 -------------
 
+**Next Release**
+
+- Can locate Maven 3's unique timestamped snapshots
+
 **v1.1.0** (2013-03-20)
 
 - Created `with_webapp` that takes the path to the webapps directory as parameter. This replaces the old way of using `with_artifact` and specifying the webapps directory in `.template.rb` ([#7](https://github.com/solita/ploy/issues/7))
