@@ -14,6 +14,8 @@ Run the example using the commands:
     cd example
     ./run.sh
 
+You may also [download pre-built binaries](http://www.mediafire.com/folder/8og9xmggmwnq9/Ploy).
+
 Requires Maven 3 and Java 7 or higher. Includes JRuby in Ruby 1.9 mode.
 
 Licensed under the MIT license.
