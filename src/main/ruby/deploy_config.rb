@@ -89,8 +89,8 @@ class ServerConfig
 
   # TODO: add with_copied_artifact
   # TODO: add with_unzipped_artifact
-  # TODO: rename to with_repacked_war_artifact
-  def with_webapp(target_dir, war_artifact, jar_bundles = [])
+
+  def with_repacked_war_artifact(target_dir, war_artifact, jar_bundles = [])
     assert_type(:target_dir, target_dir, String)
     assert_type(:war_artifact, war_artifact, String)
     assert_type(:jar_bundles, jar_bundles, Array)

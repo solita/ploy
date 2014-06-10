@@ -26,7 +26,8 @@ Release Notes
 
 ## Upcoming
 
-- Renamed `ServerConfig::with_file` to `with_text_file`
+- Renamed `with_file` to `with_text_file`
+- Renamed `with_webapp` to `with_repacked_war_artifact`
 
 **v1.2.0** (2013-08-13)
 

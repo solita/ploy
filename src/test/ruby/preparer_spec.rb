@@ -257,7 +257,7 @@ describe Preparer do
 
     it "copies WARs from the local Maven repository to the specified directory" do
       @config.server 'server1' do |server|
-        server.with_webapp 'webapps', 'com.example:sample:1.0:war'
+        server.with_repacked_war_artifact 'webapps', 'com.example:sample:1.0:war'
       end
       prepare!
 
@@ -266,7 +266,7 @@ describe Preparer do
 
     it "embeds JARs files from ZIP bundles inside WAR files" do
       @config.server 'server1' do |server|
-        server.with_webapp 'webapps', 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
+        server.with_repacked_war_artifact 'webapps', 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
       end
       prepare!
 
@@ -277,7 +277,7 @@ describe Preparer do
       original = "testdata/maven-repository/com/example/sample/1.0/sample-1.0.war"
 
       @config.server 'server1' do |server|
-        server.with_webapp 'webapps', 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
+        server.with_repacked_war_artifact 'webapps', 'com.example:sample:1.0:war', ['com.example:extralibs:1.0:zip:bundle']
       end
       prepare!
 

@@ -31,7 +31,7 @@ config.server 'server1', 'server2' do |server|
   # - (optional) The third parameter is an array of Maven artifact descriptors of ZIP
   #   files which will be unpacked and their contents copied inside the WAR's
   #   /WEB-INF/lib directory.
-  server.with_webapp 'webapps-dir', "com.example:sample:#{sample_version}:war", ["com.example:extralibs:#{sample_version}:zip:bundle"]
+  server.with_repacked_war_artifact 'webapps-dir', "com.example:sample:#{sample_version}:war", ["com.example:extralibs:#{sample_version}:zip:bundle"]
 
   # You can have multiple tasks, each identified by a unique name (here :deploy).
   # There is also a built-in :prepare task which processes the template files and
