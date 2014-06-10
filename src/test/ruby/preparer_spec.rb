@@ -255,6 +255,15 @@ describe Preparer do
       config.maven_repository.should == "#{Dir.home}/.m2/repository"
     end
 
+    it "copies artifacts from the local Maven repository to the specified directory" do
+      @config.server 'server1' do |server|
+        server.with_copied_artifact 'foo', 'com.example:sample:1.0:war'
+      end
+      prepare!
+
+      "#@output/server1/foo/sample.war".should be_a_file
+    end
+
     it "copies WARs from the local Maven repository to the specified directory" do
       @config.server 'server1' do |server|
         server.with_repacked_war_artifact 'webapps', 'com.example:sample:1.0:war'

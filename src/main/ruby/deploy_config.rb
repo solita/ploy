@@ -47,7 +47,8 @@ class ServerConfig
               :variables,
               :tasks,
               :template,
-              :files,
+              :text_files,
+              :copied_artifacts,
               :webapps
 
   def initialize(deploy_config, hostname)
@@ -57,7 +58,8 @@ class ServerConfig
     @variables = {}.merge(deploy_config.variables)
     @tasks = {}.merge(deploy_config.default_tasks)
     @template = nil
-    @files = []
+    @text_files = []
+    @copied_artifacts = []
     @webapps = []
   end
 
@@ -78,7 +80,7 @@ class ServerConfig
   def with_text_file(target_path, content)
     assert_type(:target_path, target_path, String)
     assert_type(:content, content, String)
-    @files << [target_path, content]
+    @text_files << [target_path, content]
   end
 
   def with_properties_file(target_path, properties)
@@ -87,7 +89,12 @@ class ServerConfig
     with_text_file(target_path, properties.map { |key, value| "#{key}=#{value}\n" }.join)
   end
 
-  # TODO: add with_copied_artifact
+  def with_copied_artifact(target_dir, artifact)
+    assert_type(:target_dir, target_dir, String)
+    assert_type(:artifact, artifact, String)
+    @copied_artifacts << [target_dir, artifact]
+  end
+
   # TODO: add with_unzipped_artifact
 
   def with_repacked_war_artifact(target_dir, war_artifact, jar_bundles = [])

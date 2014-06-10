@@ -24,6 +24,9 @@ config.server 'server1', 'server2' do |server|
           'someKey' => 'some value'
   }
 
+  # This copies an artifact from the local Maven repository.
+  server.with_copied_artifact 'artifacts-dir', "com.example:sample:#{sample_version}:war"
+
   # These is special support for WAR files.
   # - The first parameter is the path to the directory where to copy the WAR file.
   # - The second parameter is a Maven artifact descriptor for the WAR file. It will be

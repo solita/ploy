@@ -23,7 +23,8 @@ class Preparer
   def build_server!(server)
     create_output_dir(server)
     build_templates(server)
-    build_files(server)
+    build_text_files(server)
+    build_copied_artifacts(server)
     build_webapps(server)
   end
 
@@ -91,8 +92,8 @@ class Preparer
 
   # Properties files
 
-  def build_files(server)
-    server.files.each { |relative_path, content|
+  def build_text_files(server)
+    server.text_files.each { |relative_path, content|
       output_file = File.join(server.output_dir, relative_path)
       write_file(output_file, content)
     }
@@ -110,24 +111,38 @@ class Preparer
   end
 
 
+  # Artifacts
+
+  def build_copied_artifacts(server)
+    server.copied_artifacts.each { |target_dir, artifact|
+      copy_artifact(server, target_dir, artifact)
+    }
+  end
+
+  def copy_artifact(server, target_dir, artifact_desc)
+    artifact = MavenArtifact.new(artifact_desc)
+    source_file = artifact.path(@config.maven_repository)
+    target_file = File.join(server.output_dir, target_dir, artifact.simple_name)
+
+    @logger.info "Copying #{source_file} to #{target_file}"
+    create_parent_dirs(target_file)
+    FileUtils.cp(source_file, target_file, :preserve => true)
+    target_file
+  end
+
   # Webapps
 
   def build_webapps(server)
     server.webapps.each { |target_dir, war_artifact, jar_bundles|
-      webapp = MavenArtifact.new(war_artifact)
-      source_file = webapp.path(@config.maven_repository)
-      target_file = File.join(server.output_dir, target_dir, webapp.simple_name)
+      target_file = copy_artifact(server, target_dir, war_artifact)
 
-      @logger.info "Copying #{source_file} to #{target_file}"
-      create_parent_dirs(target_file)
-      FileUtils.cp(source_file, target_file, :preserve => true)
-
+      file_mode = File.stat(target_file).mode
       jar_bundles.each { |jar_bundle|
         jar_bundle = MavenArtifact.new(jar_bundle)
         bundle_file = jar_bundle.path(@config.maven_repository)
         embed_into_zip(bundle_file, target_file, 'WEB-INF/lib')
       }
-      File.chmod(File.stat(source_file).mode, target_file)
+      File.chmod(file_mode, target_file)
     }
   end
 

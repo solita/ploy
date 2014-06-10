@@ -26,6 +26,7 @@ Release Notes
 
 ## Upcoming
 
+- Added `with_copied_artifact`
 - Renamed `with_file` to `with_text_file`
 - Renamed `with_webapp` to `with_repacked_war_artifact`
 
