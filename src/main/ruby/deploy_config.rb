@@ -75,7 +75,7 @@ class ServerConfig
     @template = TemplateDir.new(File.absolute_path(source_path))
   end
 
-  def with_file(target_path, content)
+  def with_text_file(target_path, content)
     assert_type(:target_path, target_path, String)
     assert_type(:content, content, String)
     @files << [target_path, content]
@@ -84,9 +84,12 @@ class ServerConfig
   def with_properties_file(target_path, properties)
     assert_type(:target_path, target_path, String)
     assert_type(:properties, properties, Hash)
-    with_file(target_path, properties.map { |key, value| "#{key}=#{value}\n" }.join)
+    with_text_file(target_path, properties.map { |key, value| "#{key}=#{value}\n" }.join)
   end
 
+  # TODO: add with_copied_artifact
+  # TODO: add with_unzipped_artifact
+  # TODO: rename to with_repacked_war_artifact
   def with_webapp(target_dir, war_artifact, jar_bundles = [])
     assert_type(:target_dir, target_dir, String)
     assert_type(:war_artifact, war_artifact, String)

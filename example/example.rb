@@ -17,7 +17,7 @@ config.server 'server1', 'server2' do |server|
   server.based_on_template 'templates/generic-server'
 
   # You can generate arbitrary files by just specifying the file name and content
-  server.with_file 'lib/dynamically-generated.txt', "the file content\n"
+  server.with_text_file 'lib/dynamically-generated.txt', "the file content\n"
 
   # There is special support for generating Java .properties files from a Ruby map
   server.with_properties_file 'lib/dynamically-generated.properties', {

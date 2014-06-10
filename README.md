@@ -24,6 +24,10 @@ Licensed under the MIT license.
 Release Notes
 -------------
 
+## Upcoming
+
+- Renamed `ServerConfig::with_file` to `with_text_file`
+
 **v1.2.0** (2013-08-13)
 
 - Can locate Maven 3's unique timestamped snapshots

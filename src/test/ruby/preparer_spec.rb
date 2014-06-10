@@ -135,7 +135,7 @@ describe Preparer do
 
     it "can generate arbitrary files from strings" do
       @config.server 'server1' do |server|
-        server.with_file 'file.txt', 'file content'
+        server.with_text_file 'file.txt', 'file content'
       end
       prepare!
 
