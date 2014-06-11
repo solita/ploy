@@ -23,10 +23,10 @@ class Preparer
   def build_server!(server)
     create_output_dir(server)
     build_templates(server)
-    build_text_files(server)
-    build_copied_artifacts(server)
     build_unzipped_artifacts(server)
     build_webapps(server)
+    build_copied_artifacts(server)
+    build_text_files(server)
   end
 
   private
