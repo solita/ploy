@@ -25,6 +25,7 @@ class Preparer
     build_templates(server)
     build_text_files(server)
     build_copied_artifacts(server)
+    build_unzipped_artifacts(server)
     build_webapps(server)
   end
 
@@ -107,7 +108,11 @@ class Preparer
   end
 
   def create_parent_dirs(file)
-    FileUtils.mkdir_p(File.dirname(file))
+    create_dirs(File.dirname(file))
+  end
+
+  def create_dirs(dir)
+    FileUtils.mkdir_p(dir)
   end
 
 
@@ -116,6 +121,18 @@ class Preparer
   def build_copied_artifacts(server)
     server.copied_artifacts.each { |target_dir, artifact|
       copy_artifact(server, target_dir, artifact)
+    }
+  end
+
+  def build_unzipped_artifacts(server)
+    server.unzipped_artifacts.each { |target_dir, artifact|
+      artifact = MavenArtifact.new(artifact)
+      source_file = artifact.path(@config.maven_repository)
+      target_file = File.join(server.output_dir, target_dir)
+
+      @logger.info "Unzipping #{source_file} to #{target_file}"
+      create_dirs(target_file)
+      Zip.new(source_file).unzip(target_file)
     }
   end
 

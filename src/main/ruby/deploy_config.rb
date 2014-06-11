@@ -49,6 +49,7 @@ class ServerConfig
               :template,
               :text_files,
               :copied_artifacts,
+              :unzipped_artifacts,
               :webapps
 
   def initialize(deploy_config, hostname)
@@ -60,6 +61,7 @@ class ServerConfig
     @template = nil
     @text_files = []
     @copied_artifacts = []
+    @unzipped_artifacts = []
     @webapps = []
   end
 
@@ -95,7 +97,11 @@ class ServerConfig
     @copied_artifacts << [target_dir, artifact]
   end
 
-  # TODO: add with_unzipped_artifact
+  def with_unzipped_artifact(target_dir, artifact)
+    assert_type(:target_dir, target_dir, String)
+    assert_type(:artifact, artifact, String)
+    @unzipped_artifacts << [target_dir, artifact]
+  end
 
   def with_repacked_war_artifact(target_dir, war_artifact, jar_bundles = [])
     assert_type(:target_dir, target_dir, String)
