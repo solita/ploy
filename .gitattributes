@@ -6,3 +6,6 @@
 *.xml           eol=lf
 *.html          eol=lf
 *.iml           eol=lf
+*.jar           binary
+*.war           binary
+*.zip           binary
