@@ -24,7 +24,7 @@ Licensed under the MIT license.
 Release Notes
 -------------
 
-### Upcoming
+### Ploy 1.3.0 (2014-06-12)
 
 - Added `with_copied_artifact`
 - Added `with_unzipped_artifact`
